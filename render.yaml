@@ -4,5 +4,5 @@ services:
     env: python
     plan: free
     buildCommand: ""
-    startCommand: python web_app.py
+    startCommand: python3 web_app.py
     healthCheckPath: /api/health
