@@ -1,0 +1,2 @@
+# Per-deployment runtime state — never commit.
+data/
