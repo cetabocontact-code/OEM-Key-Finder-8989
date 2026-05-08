@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from . import (
     arrow,
+    automotive,
     corbin,
     kwikset,
     master,
@@ -21,4 +22,5 @@ from .base import Profile, REGISTRY
 __all__ = ["Profile", "REGISTRY"]
 
 # Force registration side-effects.
-_ = (schlage, kwikset, master, sargent, yale, arrow, corbin, medeco, weiser)
+_ = (schlage, kwikset, master, sargent, yale, arrow, corbin, medeco, weiser,
+     automotive)

@@ -5,6 +5,28 @@ Designed to outperform `instacodelive.com` and `lockcodes.com` on speed,
 batch capability, and offline use. Built completely in a new directory;
 no existing files in this repo were modified.
 
+## Fault-reduction strategies
+
+The tool implements five strategies for keeping an offline locksmith
+database accurate, secure, and synchronized without constant connectivity:
+
+1. **Differential / delta sync** (`locksmith.sync`) — manifest with HMAC
+   signature and per-file SHA-256. Only changed files transfer; corrupt
+   files or wrong keys are rejected before anything is written.
+2. **Manufacturer checksum / parity rules** (`locksmith.checksum`) —
+   ghost-code detection. Examples: Schlage commercial >4-consecutive
+   warning, Ford H75 sum-parity rule, Toyota TR47 sum-in-range envelope.
+3. **Per-machine DSD calibration** (`locksmith.calibration`) —
+   Dolphin / Condor / Triton / Futura profiles with test-cut feedback.
+   Active machine offsets are applied to inches in every decode.
+4. **Hardware-bound seal + 30-day TTL** (`locksmith.secure_store`) —
+   HMAC binds the seal to the device's hardware fingerprint and the
+   locksmith's token. Moving the file to another host or letting it
+   expire forces a refresh.
+5. **Conflict resolution / multi-series fallback** (`locksmith.fallback`) —
+   when a decode fails MACS / depth / checksum, the engine ranks
+   alternative profiles that *would* accept the cuts.
+
 ## Why this is faster than the cloud tools
 
 | Tool                        | Per-lookup latency    |
