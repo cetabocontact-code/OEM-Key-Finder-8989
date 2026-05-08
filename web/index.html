@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OEM Key Finder 8989</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">VIN-only OEM key lookup</p>
+        <h1>OEM Key Finder 8989</h1>
+      </div>
+    </header>
+
+    <main class="shell">
+      <nav class="tabs" aria-label="Views">
+        <button class="tab-button active" data-tab="search" type="button">Lookup</button>
+        <button class="tab-button" data-tab="history" type="button">Last 50 Searches</button>
+        <button class="tab-button" data-tab="subscribe" type="button">Helpful Tools</button>
+        <button class="tab-button" data-tab="makes" type="button">Supported Makes</button>
+      </nav>
+
+      <section class="tab-panel active" id="search-panel">
+        <form class="search-form" id="search-form">
+          <div class="field">
+            <label for="vin-input">VIN</label>
+            <input id="vin-input" name="vin" maxlength="17" autocomplete="off" spellcheck="false" placeholder="ENTER 17-CHAR VIN">
+          </div>
+          <div class="field">
+            <label for="make-override">Make override</label>
+            <select id="make-override">
+              <option value="">Auto detect</option>
+            </select>
+          </div>
+          <button id="search-button" type="submit">Look Up Keys</button>
+          <div class="meta-row">
+            <span class="detect-pill" id="detected-pill">Enter VIN to detect make</span>
+            <span class="counter" id="counter">0/17</span>
+            <label class="offline-toggle">
+              <input id="offline-input" type="checkbox">
+              <span>Cache only</span>
+            </label>
+          </div>
+        </form>
+
+        <div class="status" id="status" role="status"></div>
+        <section class="result" id="result" aria-live="polite"></section>
+      </section>
+
+      <section class="tab-panel" id="history-panel">
+        <div class="section-head">
+          <h2>Last 50 Searches</h2>
+          <button class="ghost-button" id="refresh-history" type="button">Refresh</button>
+        </div>
+        <div class="history-table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>VIN</th>
+                <th>Vehicle</th>
+                <th>Part</th>
+                <th>Confidence</th>
+                <th>Searched</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="tab-panel" id="subscribe-panel">
+        <form class="subscribe-form" id="subscribe-form">
+          <div class="field">
+            <label for="subscribe-email">Email</label>
+            <input id="subscribe-email" name="email" type="email" autocomplete="email" spellcheck="false" placeholder="you@example.com">
+          </div>
+          <button id="subscribe-button" type="submit">Subscribe</button>
+          <p class="subscribe-note">Get updates when new useful shop tools are ready.</p>
+        </form>
+        <div class="status" id="subscribe-status" role="status"></div>
+      </section>
+
+      <section class="tab-panel" id="makes-panel">
+        <div class="section-head">
+          <h2>Supported Makes</h2>
+          <span class="muted" id="make-count"></span>
+        </div>
+        <div class="makes-grid" id="makes-grid"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

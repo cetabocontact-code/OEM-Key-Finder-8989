@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: oem-key-finder
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: python web_app.py
+    healthCheckPath: /api/health

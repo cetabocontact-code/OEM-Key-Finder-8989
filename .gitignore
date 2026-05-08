@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+
+data/private/
+data/search_history.json
+
+out/
+.oem_key_finder_storage/

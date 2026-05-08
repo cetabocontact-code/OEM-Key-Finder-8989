@@ -1,0 +1,242 @@
+{
+  "toyota": {
+    "label": "Toyota",
+    "color": "#c8102e",
+    "sites": ["www.toyotapartsdeal.com"],
+    "seed_part": "89070-02880",
+    "test_vin": "2T3WFREV1EW114903",
+    "wmi": ["JT0", "JT1", "JT2", "JT3", "JT4", "JT5", "JT6", "JT7", "JT8", "JT9", "JTD", "JTE", "JTF", "JTL", "JTM", "JTN", "NMT", "4T1", "4T2", "4T3", "5TD", "5TE", "5TF", "5TG", "5TJ", "2T1", "2T2", "2T3", "3TM", "3TN", "3TE", "3TD", "3TK"]
+  },
+  "lexus": {
+    "label": "Lexus",
+    "color": "#1a1a2e",
+    "sites": ["www.toyotapartsdeal.com", "lexuspartsnow.com"],
+    "seed_part": "89904-48481",
+    "test_vin": "JTHCF1D21E5003351",
+    "wmi": ["JTH", "JTJ", "JTK", "2T2", "58A"]
+  },
+  "scion": {
+    "label": "Scion",
+    "color": "#2d6a9f",
+    "sites": ["www.toyotapartsdeal.com"],
+    "seed_part": "89070-52G30",
+    "test_vin": "JTKJF5C72E3083695",
+    "wmi": ["JTK", "JTN"]
+  },
+  "nissan": {
+    "label": "Nissan",
+    "color": "#c3002f",
+    "sites": ["www.nissanpartsdeal.com"],
+    "seed_part": "285E3-9UF7A",
+    "test_vin": "1N4AL3AP2EC194907",
+    "wmi": ["JN1", "JN3", "JN6", "JN8", "1N4", "1N6", "3N1", "3N6", "5N1", "5N3"]
+  },
+  "infiniti": {
+    "label": "Infiniti",
+    "color": "#8b6914",
+    "sites": ["www.nissanpartsdeal.com"],
+    "seed_part": "285E3-1LP0C",
+    "test_vin": "JN1CV6EL0EM132375",
+    "wmi": ["JNK", "JNA", "JN1"]
+  },
+  "honda": {
+    "label": "Honda",
+    "color": "#e40521",
+    "sites": ["www.hondapartsnow.com"],
+    "seed_part": "72147-TG7-A11",
+    "test_vin": "1HGCR2F88EA282614",
+    "wmi": ["JHM", "JH2", "SHH", "19X", "1HG", "1H3", "2HG", "2HK", "3HG", "5FN"]
+  },
+  "acura": {
+    "label": "Acura",
+    "color": "#1e3a5f",
+    "sites": ["www.acurapartsnow.com", "www.acurapartswarehouse.com"],
+    "seed_part": "72147-SY8-A03",
+    "test_vin": "5FRYD4H86EB504844",
+    "wmi": ["JH4", "5J8", "5J6", "5FR", "19U"]
+  },
+  "chevrolet": {
+    "label": "Chevrolet",
+    "color": "#d4af37",
+    "sites": ["www.gmpartsdirect.com", "www.gmpartsgiant.com"],
+    "seed_part": "13586489",
+    "test_vin": "3GCUKREC6EG362971",
+    "wmi": ["1G1", "1GC", "1GD", "1GN", "1GS", "2G1", "3G1", "3GC", "3GN", "KL7", "KL8"]
+  },
+  "gmc": {
+    "label": "GMC",
+    "color": "#c8102e",
+    "sites": ["www.gmpartsdirect.com", "www.gmpartsgiant.com"],
+    "seed_part": "13577771",
+    "test_vin": "3GTU2UEC6EG107319",
+    "wmi": ["1GK", "1GT", "3GT"]
+  },
+  "buick": {
+    "label": "Buick",
+    "color": "#8b0000",
+    "sites": ["www.gmpartsdirect.com", "www.gmpartsgiant.com"],
+    "seed_part": "13521090",
+    "test_vin": "1G4GA5GR3EF130870",
+    "wmi": ["1G4", "2G4", "3G5", "5GA", "KL4", "KL7", "LRB", "W04"]
+  },
+  "cadillac": {
+    "label": "Cadillac",
+    "color": "#6b3a2a",
+    "sites": ["www.gmpartsdirect.com", "www.gmpartsgiant.com"],
+    "seed_part": "22865375",
+    "test_vin": "2G61W5S86E9114863",
+    "wmi": ["1G6", "1GY", "2G6"]
+  },
+  "ford": {
+    "label": "Ford",
+    "color": "#003476",
+    "sites": ["www.fordparts.com"],
+    "seed_part": "164-R8067",
+    "test_vin": "1FTFW1ET8EFC50303",
+    "wmi": ["1FA", "1FB", "1FC", "1FD", "1FM", "1FT", "2FA", "2FB", "2FC", "2FD", "2FM", "2FT", "3FA", "3FB", "3FC", "3FD", "3FM", "3FT", "NM0"]
+  },
+  "lincoln": {
+    "label": "Lincoln",
+    "color": "#2c2c2c",
+    "sites": ["www.fordparts.com"],
+    "seed_part": "164-R8070",
+    "test_vin": "2LMHJ5AT9EBL54336",
+    "wmi": ["1LN", "2LM", "3LN", "5LM"]
+  },
+  "chrysler": {
+    "label": "Chrysler",
+    "color": "#003399",
+    "sites": ["www.moparpartsgiant.com", "www.moparamerica.com"],
+    "seed_part": "68273329AA",
+    "test_vin": "2C3CCAAGXEH378114",
+    "wmi": ["1C3", "1C4", "2C3", "2C4", "3C4"]
+  },
+  "dodge": {
+    "label": "Dodge",
+    "color": "#e31837",
+    "sites": ["www.moparpartsgiant.com", "www.moparamerica.com"],
+    "seed_part": "68575429AA",
+    "test_vin": "2C3CDXBG3EH326211",
+    "wmi": ["1B3", "1B4", "1B7", "2B3", "1D3", "1D4", "1D7", "2D3"]
+  },
+  "jeep": {
+    "label": "Jeep",
+    "color": "#00703c",
+    "sites": ["www.moparpartsgiant.com", "www.moparamerica.com"],
+    "seed_part": "68273329AA",
+    "test_vin": "1C4BJWEG6EL217864",
+    "wmi": ["1C4", "JC4"]
+  },
+  "ram": {
+    "label": "RAM",
+    "color": "#1a1a1a",
+    "sites": ["www.moparpartsgiant.com", "www.moparamerica.com"],
+    "seed_part": "68584151AA",
+    "test_vin": "1C6RR6LT9ES416430",
+    "wmi": ["1C6", "3C6"]
+  },
+  "hyundai": {
+    "label": "Hyundai",
+    "color": "#002c5f",
+    "sites": ["www.hyundaioemparts.com", "www.hyundaipartsdeal.com"],
+    "seed_part": "95440-3N250",
+    "test_vin": "KMHDH4AE1EU183089",
+    "wmi": ["KMH", "KM8", "5NM", "5NP"]
+  },
+  "kia": {
+    "label": "Kia",
+    "color": "#05141f",
+    "sites": ["www.kiapartsnow.com", "www.kiaparts.com"],
+    "seed_part": "81996-F6500",
+    "test_vin": "KNDJN2A21E7058280",
+    "wmi": ["KNA", "KND", "KNE", "KNJ", "5XY", "5XX"]
+  },
+  "subaru": {
+    "label": "Subaru",
+    "color": "#003087",
+    "sites": ["parts.subaru.com", "www.subarupartsdeal.com"],
+    "seed_part": "57497AJ10A",
+    "test_vin": "JF2SJAAC7EH437539",
+    "wmi": ["JF1", "JF2", "4S3", "4S4"]
+  },
+  "mazda": {
+    "label": "Mazda",
+    "color": "#910000",
+    "sites": ["www.mazda-parts-dealer.com", "www.mazda-parts.com"],
+    "seed_part": "GJ6A-67-5DYC",
+    "test_vin": "JM3BM1V78E1149030",
+    "wmi": ["JM1", "JM3", "3MV", "4F2", "4F4", "1YV"]
+  },
+  "mitsubishi": {
+    "label": "Mitsubishi",
+    "color": "#e60012",
+    "sites": ["www.mitsubishiparts.com"],
+    "seed_part": "6370A417",
+    "test_vin": "JA3AU26U14U033768",
+    "wmi": ["JA3", "JA4", "4A3", "4A4"]
+  },
+  "volkswagen": {
+    "label": "Volkswagen",
+    "color": "#001e50",
+    "sites": ["www.vwpartscenter.net", "www.eeuroparts.com"],
+    "seed_part": "5K0837202",
+    "test_vin": "1VWBP7A35DC024172",
+    "wmi": ["WVW", "WV1", "WV2", "1VW", "3VW", "3VV"]
+  },
+  "audi": {
+    "label": "Audi",
+    "color": "#bb0a30",
+    "sites": ["parts.audiusa.com"],
+    "seed_part": "8V0-837-220-D",
+    "test_vin": "WAUC8GFF0JA043195",
+    "wmi": ["WAU", "WUA", "TRU"]
+  },
+  "land-rover": {
+    "label": "Land Rover",
+    "color": "#006f3c",
+    "sites": ["landrover.oempartsonline.com"],
+    "seed_part": "LR078921",
+    "test_vin": "SALSA2CN7KH823091",
+    "wmi": ["SAL"]
+  },
+  "tesla": {
+    "label": "Tesla",
+    "color": "#c8202f",
+    "sites": ["shop.tesla.com"],
+    "seed_part": "1133148",
+    "test_vin": "7SAYGDEE0PF192834",
+    "wmi": ["5YJ", "7SA", "7G2", "LRW", "SFZ", "XP7"]
+  },
+  "volvo": {
+    "label": "Volvo",
+    "color": "#1251a2",
+    "sites": ["usparts.volvocars.com", "www.volvopartscounter.com"],
+    "seed_part": "32425215",
+    "test_vin": "YV4BR0DL6N1628394",
+    "wmi": ["YV1", "YV4", "LYV"]
+  },
+  "bmw": {
+    "label": "BMW",
+    "color": "#1c69d3",
+    "sites": ["bmwfans.info"],
+    "seed_part": "66126938429",
+    "test_vin": "WBA3A5C51DF359886",
+    "wmi": ["WBA", "WBS", "WBX", "WBY", "5UX", "5YX", "4US", "3MW"]
+  },
+  "mini": {
+    "label": "MINI",
+    "color": "#ee1c25",
+    "sites": ["bmwfans.info"],
+    "seed_part": "66126938429",
+    "test_vin": "WMWSV3C57ET558272",
+    "wmi": ["WMW"]
+  },
+  "mercedes-benz": {
+    "label": "Mercedes-Benz",
+    "color": "#555f66",
+    "sites": ["parts.mercedesbenzoflittleton.com"],
+    "seed_part": "000-905-11-12",
+    "test_vin": "",
+    "wmi": ["W1K", "W1N", "W1V", "WDB", "WDC", "WDD", "WD4"]
+  }
+}

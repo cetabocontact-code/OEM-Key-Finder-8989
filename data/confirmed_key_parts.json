@@ -1,0 +1,222 @@
+{
+  "vin_confirmations": {
+    "19UDE4H66TA000653": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "AcuraPartsNow VIN/YMM/trim lookup for 2026 Acura Integra A-Spec Tech",
+      "notes": "User confirmed with NHTSA YMM/trim and AcuraPartsNow product page.",
+      "parts": [
+        {
+          "description": "Remote Engine Starter System",
+          "part_number": "08E92-3S5-200",
+          "replaces": [
+            "PREO-ITG-001"
+          ]
+        }
+      ],
+      "source_url": "https://www.acurapartsnow.com/oem-parts/acura-remote-engine-starter-system-8e923s5200"
+    },
+    "1HGCY1F39RA023637": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "HondaPartsNow VIN lookup then key search for 2024 Honda Accord EX",
+      "notes": "User confirmed on HondaPartsNow.",
+      "parts": [
+        {
+          "description": "Keyless Entry Transmitter",
+          "part_number": "72147-T20-A11",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://www.hondapartsnow.com"
+    },
+    "WBA73AK08N7K27666": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "BMWPartsDeal VIN lookup, Electronics > Keyless Entry Components",
+      "notes": "User confirmed on BMWPartsDeal.",
+      "parts": [
+        {
+          "description": "Remote control / keyless entry component",
+          "part_number": "51212469144",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://www.bmwpartsdeal.com"
+    },
+    "2C4RC1L71PR618182": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "MoparAmerica VIN lookup then fob search for 2023 Chrysler Pacifica Touring L",
+      "notes": "User confirmed on MoparAmerica.",
+      "parts": [
+        {
+          "description": "Fob",
+          "part_number": "68217832AD",
+          "replaces": [
+            "68217832AB",
+            "68217832AC"
+          ]
+        }
+      ],
+      "source_url": "https://www.moparamerica.com"
+    },
+    "2C4RC1CG2PR566416": {
+      "confidence": "confirmed_by_oem_yymm_fitment",
+      "fitment_basis": "NHTSA clean decode as 2023 Chrysler Voyager LX; Mopar/MoparPartsGiant keyless-entry components list the integrated key fob transmitter for 2023 Chrysler Voyager.",
+      "notes": "Primary remote is the integrated key fob transmitter. Emergency/key blank is listed separately.",
+      "parts": [
+        {
+          "description": "Integrated Key Fob Transmitter",
+          "part_number": "68217832AD",
+          "replaces": [
+            "68217832AB",
+            "68217832AC"
+          ]
+        },
+        {
+          "description": "Key Blank / Transmitter Emergency Key",
+          "part_number": "68289894AC",
+          "replaces": [
+            "68289894AA",
+            "68289894AB"
+          ]
+        }
+      ],
+      "source_url": "https://www.moparpartsgiant.com/parts-list/2023-chrysler-voyager/keyless-entry-components.html"
+    },
+    "1FTFW3LD6SFB00855": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "FordPartsGiant VIN lookup for 2025 Ford F-150 XLT",
+      "notes": "User confirmed on FordPartsGiant.",
+      "parts": [
+        {
+          "description": "Keyless entry transmitter",
+          "part_number": "GB5Z-15K601-A",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://www.fordpartsgiant.com"
+    },
+    "1GKKNULS6MZ165460": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "GMPartsGiant GMC VIN lookup for 2021 GMC Acadia SLT",
+      "notes": "User confirmed on GMPartsGiant.",
+      "parts": [
+        {
+          "description": "Keyless entry transmitter",
+          "part_number": "13522895",
+          "replaces": [],
+          "superseded_by": [
+            "13547797"
+          ]
+        }
+      ],
+      "source_url": "https://www.gmpartsgiant.com/gmc-parts.html"
+    },
+    "3KPC24A64NE177716": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "HyundaiPartsDeal VIN/YMM/trim lookup for 2022 Hyundai Accent",
+      "notes": "User confirmed on HyundaiPartsDeal using NHTSA trim details.",
+      "parts": [
+        {
+          "description": "Keyless entry transmitter",
+          "part_number": "95430-J0800",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://www.hyundaipartsdeal.com"
+    },
+    "KMHM34AA4RA070319": {
+      "confidence": "confirmed_by_oem_yymm_trim_fitment",
+      "fitment_basis": "NHTSA clean decode as 2024 Hyundai Ioniq 6 SEL; Hyundai OEM parts sources list 95440-KL000 for Ioniq 6 smart key without Smart Park/auto park, while 95440-KL200 is the auto-park transmitter.",
+      "notes": "SEL trim is treated as without Smart Park/auto park. If the vehicle is confirmed to have Remote Smart Parking Assist, verify against 95440-KL200 before ordering.",
+      "parts": [
+        {
+          "description": "Fob Smart Key / Keyless Entry Transmitter, without auto park",
+          "part_number": "95440-KL000",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://parts.tamiamihyundai.com/oem-parts/hyundai-transmitter-95440kl000"
+    },
+    "5N1DL1HUXPC376439": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "Infiniti parts VIN lookup and smart key search for 2023 Infiniti QX60 Autograph",
+      "notes": "User confirmed on Infiniti USA parts.",
+      "parts": [
+        {
+          "description": "Smart key",
+          "part_number": "T99K1-6SA00",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://parts.infinitiusa.com/"
+    },
+    "3KPFT4DE2SE036913": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "Kia parts product fitment for 2025 Kia K4 LX/LXS",
+      "notes": "User confirmed on Kia parts.",
+      "parts": [
+        {
+          "description": "TX Assy-Keyless Entry",
+          "part_number": "95430GG000",
+          "replaces": []
+        }
+      ],
+      "source_url": "https://parts.kia.com/p/Kia_2025_K4-20L-AT-LX/TX-ASSY-KEYLESS-ENTR-TX-ASSY-KEYLESS-ENTRY/147336387/95430GG000.html"
+    },
+    "3MVDMBBM7RM694230": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "OnlineMazdaParts product fitment for 2024 Mazda CX-30 2.5 S AWD",
+      "notes": "User confirmed on OnlineMazdaParts.",
+      "parts": [
+        {
+          "description": "Keyless Entry Transmitter",
+          "part_number": "BCYN675DYB",
+          "replaces": [
+            "BCYN-67-5DY",
+            "BCYN-67-5DYA"
+          ]
+        }
+      ],
+      "source_url": "https://www.onlinemazdaparts.com/p/Mazda_2024_CX-30-25L-SKYACTIV-AT-AWD-25-S-Sport-Utility/Keyless-Entry-Transmitter/98522065/BCYN675DYB.html"
+    },
+    "JF2SKARC9PH490439": {
+      "confidence": "confirmed_by_user_vin_fitment",
+      "fitment_basis": "SubaruPartsDeal VIN/YMM/trim lookup for 2023 Subaru Forester Touring w/EyeSight",
+      "notes": "User confirmed on SubaruPartsDeal.",
+      "parts": [
+        {
+          "description": "Keyless entry transmitter",
+          "part_number": "88835FL031",
+          "replaces": [],
+          "superseded_by": [
+            "88835FL032"
+          ]
+        }
+      ],
+      "source_url": "https://www.subarupartsdeal.com/page_product/category?vin=JF2SKARC9PH490439&make=Subaru&model=Forester&year=2023&submodel=&extra1=4%20Cyl%202.5L&extra2=Touring%20w%2fEyesight&filter=()"
+    }
+  },
+  "rules": [
+    {
+      "confidence": "rule_from_oem_fitment_and_same_cargurus_trim",
+      "fitment_basis": "Scoped to 2024 Mazda CX-30 Select Sport decodes; Mazda source lists BCYN-67-5DYB / BCYN675DYB for CX-30 keyless-entry transmitter and the supplied VIN confirmed this fitment.",
+      "match": {
+        "Make": "MAZDA",
+        "Model": "CX-30",
+        "ModelYear": "2024",
+        "Trim_contains": "Select Sport"
+      },
+      "notes": "Use only for 2024 Mazda CX-30 2.5 S Select Sport AWD listings unless VIN-level Mazda fitment is checked.",
+      "parts": [
+        {
+          "description": "Keyless Entry Transmitter",
+          "part_number": "BCYN675DYB",
+          "replaces": [
+            "BCYN-67-5DY",
+            "BCYN-67-5DYA"
+          ]
+        }
+      ],
+      "source_url": "https://www.mazda-parts.com/oem-parts/mazda-transmitter-bcyn675dyb"
+    }
+  ]
+}
