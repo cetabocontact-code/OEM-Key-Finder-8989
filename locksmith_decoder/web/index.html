@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Locksmith Decoder</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <h1>Locksmith Decoder</h1>
+  <p class="sub">Offline key-code &rarr; bitting &rarr; depth/space. Verified locksmiths only.</p>
+</header>
+
+<section class="auth">
+  <label>Access token
+    <input id="token" type="password" placeholder="LOCKSMITH_TOKEN">
+  </label>
+  <button id="save-token">Save</button>
+  <span id="who"></span>
+</section>
+
+<section class="single">
+  <h2>Single decode</h2>
+  <label>Keyway
+    <select id="keyway"></select>
+  </label>
+  <label>Code
+    <input id="code" placeholder="e.g. 12345" autocomplete="off">
+  </label>
+  <button id="decode">Decode</button>
+  <pre id="result"></pre>
+</section>
+
+<section class="batch">
+  <h2>Batch decode</h2>
+  <p class="hint">CSV with header <code>keyway,code</code>. Commas or newlines accepted.</p>
+  <textarea id="batch-input" rows="8" placeholder="keyway,code
+SC1,12345
+KW1,13571
+M5,32145"></textarea>
+  <button id="run-batch">Run batch</button>
+  <pre id="batch-result"></pre>
+</section>
+
+<footer>
+  <small>Cross-check depths against your authoritative manufacturer chart before cutting production keys.</small>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
