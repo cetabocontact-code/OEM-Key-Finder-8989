@@ -17,6 +17,8 @@ Production:
 
 from __future__ import annotations
 
+import difflib
+import html
 import json
 import os
 import pathlib
@@ -74,11 +76,25 @@ def tokenize(normalized: str) -> list[str]:
 with DATA_FILE.open(encoding="utf-8") as f:
     SURAHS: list[dict] = json.load(f)
 
+MORPH_FILE = BASE / "data" / "morphology.json"
+if MORPH_FILE.exists():
+    with MORPH_FILE.open(encoding="utf-8") as f:
+        MORPH: dict = json.load(f)
+else:
+    MORPH = {"roots": {}, "lemmas": {}, "form_morph": {}, "form_roots": {}, "form_lemmas": {}}
 
-def _build_index() -> tuple[list[dict], dict[str, list[int]]]:
-    """Return (flat verse list, token → [verse_idx] inverted index)."""
+ROOTS_IDX: dict[str, list[str]] = MORPH.get("roots", {})        # root  → ["s:v", ...]
+LEMMAS_IDX: dict[str, list[str]] = MORPH.get("lemmas", {})      # lemma → ["s:v", ...]
+FORM_MORPH: dict[str, dict] = MORPH.get("form_morph", {})       # form  → {root,lemma,pos}
+FORM_ROOTS: dict[str, list[str]] = MORPH.get("form_roots", {})  # form  → [root,...]
+FORM_LEMMAS: dict[str, list[str]] = MORPH.get("form_lemmas", {})# form  → [lemma,...]
+
+
+def _build_index() -> tuple[list[dict], dict[str, list[int]], dict[str, int]]:
+    """Return (flat verse list, token-inverted-index, "s:v" → verse_idx)."""
     flat: list[dict] = []
     inv: dict[str, list[int]] = {}
+    by_ref: dict[str, int] = {}
     for surah in SURAHS:
         for v in surah["verses"]:
             idx = len(flat)
@@ -90,15 +106,66 @@ def _build_index() -> tuple[list[dict], dict[str, list[int]]]:
                     "surah_en": surah["name_en"],
                     "ayah": v["n"],
                     "text": v["t"],
+                    "spelled": v["s"],
                     "tokens": tokens,
                 }
             )
+            by_ref[f"{surah['id']}:{v['n']}"] = idx
             for tok in set(tokens):
                 inv.setdefault(tok, []).append(idx)
-    return flat, inv
+    return flat, inv, by_ref
 
 
-VERSES, INDEX = _build_index()
+VERSES, INDEX, VERSE_BY_REF = _build_index()
+ALL_TOKENS: list[str] = sorted(INDEX.keys())  # vocabulary, for "did you mean"
+
+
+def _hl_predicate(mode: str, q_tokens: list[str], forms_per_qt: list[list[str]],
+                  root_q: str = "", lemma_q: str = ""):
+    """Return a function: normalized_token → bool (highlight this token?)."""
+    if mode == "root" and root_q:
+        return lambda n: root_q in FORM_ROOTS.get(n, ())
+    if mode == "lemma" and lemma_q:
+        return lambda n: lemma_q in FORM_LEMMAS.get(n, ())
+    if mode == "contains":
+        forms_all = [f for fs in forms_per_qt for f in fs]
+        return lambda n: any(f in n for f in forms_all)
+    # exact — string equality OR same lemma (covers Uthmani/Imla'ei
+    # orthographic variants like الكتب ↔ الكتاب that share lemma كِتَٰب).
+    qset = set(q_tokens)
+    q_lemmas: set[str] = set()
+    for qt in q_tokens:
+        for lem in FORM_LEMMAS.get(qt, ()):
+            q_lemmas.add(lem)
+
+    def pred(n: str) -> bool:
+        if n in qset:
+            return True
+        if q_lemmas and any(lem in q_lemmas for lem in FORM_LEMMAS.get(n, ())):
+            return True
+        return False
+
+    return pred
+
+
+_TOKEN_SPLIT = re.compile(r"(\s+)")
+
+
+def _render_highlighted(text: str, hit) -> str:
+    """Wrap every whitespace-token in <span class="w" data-w="...">;
+    matched ones additionally get the .mark class. Spans let the client
+    open a morphology card on click."""
+    out: list[str] = []
+    for part in _TOKEN_SPLIT.split(text):
+        if not part:
+            continue
+        if part.isspace():
+            out.append(part)
+            continue
+        cls = "w mark" if hit(normalize(part)) else "w"
+        esc = html.escape(part)
+        out.append(f'<span class="{cls}" data-w="{esc}">{esc}</span>')
+    return "".join(out)
 
 
 def search(query: str, mode: str = "exact") -> dict:
@@ -107,48 +174,74 @@ def search(query: str, mode: str = "exact") -> dict:
     empty = {
         "query": query, "mode": mode, "normalized": q,
         "total": 0, "total_verses": 0, "by_surah": [], "verses": [],
+        "suggestions": [],
     }
-    if not q_tokens:
+    if not query.strip():
         return empty
 
-    # Build per-query-token "match forms":
-    #   exact   → [token]
-    #   contains→ [token, "ل"+token[2:] if starts with ال] — catches
-    #             attached prefixes (ب/و/ف/ت/ل + word) plus the
-    #             lām-elision case (لـ + الـ → drops the alif:
-    #             الله→لله, الناس→للناس, الحمد→للحمد).
-    forms_per_qt: list[list[str]] = []
-    for qt in q_tokens:
-        forms = [qt]
-        if mode == "contains" and qt.startswith("ال") and len(qt) > 2:
-            forms.append("ل" + qt[2:])
-        forms_per_qt.append(forms)
+    # --- Root mode: query is treated as a root, all derived forms match.
+    if mode == "root":
+        root = q.replace(" ", "")  # accept "ح م ر" or "حمر"
+        refs = ROOTS_IDX.get(root, [])
+        if not refs:
+            empty["suggestions"] = _suggest_roots(root)
+            return empty
+        hit_ids = [VERSE_BY_REF[r] for r in refs if r in VERSE_BY_REF]
+        hl = _hl_predicate("root", [], [], root_q=root)
 
-    if mode == "contains":
-        token_matches: list[set[int]] = []
-        for forms in forms_per_qt:
-            verses: set[int] = set()
-            for token, vids in INDEX.items():
-                if any(f in token for f in forms):
-                    verses.update(vids)
-            token_matches.append(verses)
-        hit_ids = sorted(set.intersection(*token_matches)) if token_matches else []
+        def occ_count(verse):
+            return sum(
+                1 for t in verse["tokens"]
+                if root in FORM_ROOTS.get(t, ())
+            )
+
     else:
-        candidates: Iterable[int] = INDEX.get(q_tokens[0], [])
-        if len(q_tokens) > 1:
-            rest_sets = [set(INDEX.get(t, [])) for t in q_tokens[1:]]
-            candidates = [i for i in candidates if all(i in s for s in rest_sets)]
-        hit_ids = [
-            i for i in candidates
-            if _contains_phrase(VERSES[i]["tokens"], q_tokens)
-        ]
+        # --- Build prefix-elision forms for contains mode.
+        forms_per_qt: list[list[str]] = []
+        for qt in q_tokens:
+            forms = [qt]
+            if mode == "contains" and qt.startswith("ال") and len(qt) > 2:
+                forms.append("ل" + qt[2:])
+            forms_per_qt.append(forms)
+
+        if mode == "contains":
+            token_matches: list[set[int]] = []
+            for forms in forms_per_qt:
+                verses: set[int] = set()
+                for token, vids in INDEX.items():
+                    if any(f in token for f in forms):
+                        verses.update(vids)
+                token_matches.append(verses)
+            hit_ids = (
+                sorted(set.intersection(*token_matches)) if token_matches else []
+            )
+        else:
+            candidates: Iterable[int] = INDEX.get(q_tokens[0], [])
+            if len(q_tokens) > 1:
+                rest_sets = [set(INDEX.get(t, [])) for t in q_tokens[1:]]
+                candidates = [
+                    i for i in candidates if all(i in s for s in rest_sets)
+                ]
+            hit_ids = [
+                i for i in candidates
+                if _contains_phrase(VERSES[i]["tokens"], q_tokens)
+            ]
+
+        hl = _hl_predicate(mode, q_tokens, forms_per_qt)
+
+        def occ_count(verse, _q=q_tokens, _m=mode, _f=forms_per_qt):
+            return _count_in_verse(verse["tokens"], _q, _m, _f)
+
+    if not hit_ids:
+        empty["suggestions"] = _suggest_words(q_tokens[0] if q_tokens else q)
+        return empty
 
     hits: list[dict] = []
     by_surah: dict[int, dict] = {}
     total_occurrences = 0
     for idx in hit_ids:
         verse = VERSES[idx]
-        occ = _count_in_verse(verse["tokens"], q_tokens, mode, forms_per_qt)
+        occ = occ_count(verse)
         if occ == 0:
             continue
         total_occurrences += occ
@@ -159,6 +252,7 @@ def search(query: str, mode: str = "exact") -> dict:
                 "surah_en": verse["surah_en"],
                 "ayah": verse["ayah"],
                 "text": verse["text"],
+                "text_html": _render_highlighted(verse["text"], hl),
                 "occurrences": occ,
             }
         )
@@ -184,6 +278,7 @@ def search(query: str, mode: str = "exact") -> dict:
         "total_verses": len(hits),
         "by_surah": sorted(by_surah.values(), key=lambda s: s["id"]),
         "verses": hits,
+        "suggestions": [],
     }
 
 
@@ -193,20 +288,44 @@ def _count_in_verse(
     mode: str,
     forms_per_qt: list[list[str]],
 ) -> int:
-    """Total occurrences of the query inside a single verse."""
     if len(q_tokens) == 1:
         forms = forms_per_qt[0]
         if mode == "contains":
             return sum(1 for t in verse_tokens if any(f in t for f in forms))
         return sum(1 for t in verse_tokens if t == q_tokens[0])
-    # Multi-word: count contiguous phrase matches (exact); for contains
-    # mode just report 1 per verse since substring positions overlap badly.
     if mode == "exact":
         n, m = len(verse_tokens), len(q_tokens)
         return sum(
             1 for i in range(n - m + 1) if verse_tokens[i : i + m] == q_tokens
         )
     return 1
+
+
+def _suggest_words(q: str, k: int = 6) -> list[str]:
+    """Did-you-mean: close matches + substring matches in the token vocab."""
+    if not q:
+        return []
+    out: list[str] = []
+    # exact substring matches first
+    for tok in ALL_TOKENS:
+        if q in tok and tok != q:
+            out.append(tok)
+            if len(out) >= k:
+                return out
+    # then edit-distance neighbours
+    close = difflib.get_close_matches(q, ALL_TOKENS, n=k - len(out), cutoff=0.7)
+    for c in close:
+        if c not in out:
+            out.append(c)
+    return out[:k]
+
+
+def _suggest_roots(root: str, k: int = 6) -> list[str]:
+    if not root:
+        return []
+    out: list[str] = [r for r in ROOTS_IDX if root in r and r != root]
+    out.sort(key=lambda r: (len(r), r))
+    return out[:k]
 
 
 def _contains_phrase(tokens: list[str], phrase: list[str]) -> bool:
@@ -236,14 +355,43 @@ def index():
 def api_search():
     q = request.args.get("q", "", type=str).strip()
     mode = request.args.get("mode", "exact", type=str)
-    if mode not in ("exact", "contains"):
+    if mode not in ("exact", "contains", "root"):
         mode = "exact"
     return jsonify(search(q, mode=mode))
 
 
+@app.route("/api/morph")
+def api_morph():
+    """Morphology card for a single word: root, lemma, POS."""
+    word = request.args.get("w", "", type=str).strip()
+    if not word:
+        return jsonify({})
+    n = normalize(word)
+    info = FORM_MORPH.get(n) or {}
+    return jsonify(
+        {
+            "word": word,
+            "normalized": n,
+            "root": info.get("root", ""),
+            "lemma": info.get("lemma", ""),
+            "pos": info.get("pos", ""),
+            "all_roots": FORM_ROOTS.get(n, []),
+        }
+    )
+
+
 @app.route("/api/health")
 def health():
-    return jsonify({"status": "ok", "verses": len(VERSES), "surahs": len(SURAHS)})
+    return jsonify(
+        {
+            "status": "ok",
+            "verses": len(VERSES),
+            "surahs": len(SURAHS),
+            "roots": len(ROOTS_IDX),
+            "lemmas": len(LEMMAS_IDX),
+            "forms": len(FORM_MORPH),
+        }
+    )
 
 
 if __name__ == "__main__":

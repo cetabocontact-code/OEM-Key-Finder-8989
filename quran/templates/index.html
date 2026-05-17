@@ -21,7 +21,7 @@
       id="query"
       name="q"
       type="search"
-      placeholder="اكتب كلمة عربية، مثل: الحمار، الجنة، موسى"
+      placeholder="اكتب كلمة، أو جذراً مثل: حمر، كتب، رحم"
       aria-label="كلمة البحث"
       autofocus
       required
@@ -29,15 +29,33 @@
     <button type="submit">بحث</button>
   </form>
 
-  <label class="mode-toggle">
-    <input type="checkbox" id="broadMode" />
-    <span>بحث موسّع — يشمل البادئات المتصلة (بـ، وـ، فـ، تـ، لـ)</span>
-  </label>
+  <div class="mode-chips" role="radiogroup" aria-label="نوع البحث">
+    <label><input type="radio" name="mode" value="exact" checked /><span>كلمة</span></label>
+    <label><input type="radio" name="mode" value="root" /><span>جذر</span></label>
+    <label><input type="radio" name="mode" value="contains" /><span>موسّع</span></label>
+  </div>
+
+  <div id="recent" class="recent" hidden>
+    <span class="recent-label">البحث الأخير:</span>
+    <span id="recentList" class="recent-list"></span>
+    <button id="recentClear" type="button" class="recent-clear" title="مسح">مسح</button>
+  </div>
 
   <section id="results" aria-live="polite"></section>
 
+  <div id="morphCard" class="morph-card" hidden>
+    <button class="morph-close" type="button" aria-label="إغلاق">×</button>
+    <div class="morph-word"></div>
+    <dl class="morph-grid">
+      <dt>الجذر</dt><dd class="morph-root">—</dd>
+      <dt>اللم</dt><dd class="morph-lemma">—</dd>
+      <dt>النوع</dt><dd class="morph-pos">—</dd>
+    </dl>
+    <button class="morph-search-root" type="button">عرض كل المشتقات من الجذر</button>
+  </div>
+
   <footer>
-    <p>النص العثماني: حفص عن عاصم · فهرس البحث: الرسم الإملائي · بحث متجاهل للتشكيل</p>
+    <p>النص العثماني: حفص عن عاصم · فهرس البحث: الرسم الإملائي · المورفولوجيا: Quranic Arabic Corpus</p>
   </footer>
 </main>
 

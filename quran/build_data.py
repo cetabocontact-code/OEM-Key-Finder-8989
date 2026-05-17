@@ -87,6 +87,12 @@ def main() -> int:
         f"{sum(len(s['verses']) for s in surahs)} verses)",
         file=sys.stderr,
     )
+
+    # Also build the morphology index so a single `python build_data.py`
+    # produces every file the app needs.
+    print("\nNow building morphology index...", file=sys.stderr)
+    import build_morphology
+    build_morphology.main()
     return 0
 
 
