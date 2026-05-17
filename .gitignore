@@ -6,3 +6,6 @@ data/search_history.json
 
 out/
 .oem_key_finder_storage/
+
+# Runtime cache written by quran_search.py on first launch
+quran_data.json
