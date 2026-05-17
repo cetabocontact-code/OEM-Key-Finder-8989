@@ -101,27 +101,57 @@ def _build_index() -> tuple[list[dict], dict[str, list[int]]]:
 VERSES, INDEX = _build_index()
 
 
-def search(query: str) -> dict:
+def search(query: str, mode: str = "exact") -> dict:
     q = normalize(query)
     q_tokens = tokenize(q)
+    empty = {
+        "query": query, "mode": mode, "normalized": q,
+        "total": 0, "total_verses": 0, "by_surah": [], "verses": [],
+    }
     if not q_tokens:
-        return {"query": query, "total": 0, "by_surah": [], "verses": []}
+        return empty
 
-    # Exact-word match: every query token must appear as a whole word
-    # in the verse, in order, as a contiguous run.
-    candidates: Iterable[int] = INDEX.get(q_tokens[0], [])
-    if len(q_tokens) > 1:
-        # Intersect with verses containing all tokens, then check order.
-        rest_sets = [set(INDEX.get(t, [])) for t in q_tokens[1:]]
-        candidates = [i for i in candidates if all(i in s for s in rest_sets)]
+    # Build per-query-token "match forms":
+    #   exact   → [token]
+    #   contains→ [token, "ل"+token[2:] if starts with ال] — catches
+    #             attached prefixes (ب/و/ف/ت/ل + word) plus the
+    #             lām-elision case (لـ + الـ → drops the alif:
+    #             الله→لله, الناس→للناس, الحمد→للحمد).
+    forms_per_qt: list[list[str]] = []
+    for qt in q_tokens:
+        forms = [qt]
+        if mode == "contains" and qt.startswith("ال") and len(qt) > 2:
+            forms.append("ل" + qt[2:])
+        forms_per_qt.append(forms)
+
+    if mode == "contains":
+        token_matches: list[set[int]] = []
+        for forms in forms_per_qt:
+            verses: set[int] = set()
+            for token, vids in INDEX.items():
+                if any(f in token for f in forms):
+                    verses.update(vids)
+            token_matches.append(verses)
+        hit_ids = sorted(set.intersection(*token_matches)) if token_matches else []
+    else:
+        candidates: Iterable[int] = INDEX.get(q_tokens[0], [])
+        if len(q_tokens) > 1:
+            rest_sets = [set(INDEX.get(t, [])) for t in q_tokens[1:]]
+            candidates = [i for i in candidates if all(i in s for s in rest_sets)]
+        hit_ids = [
+            i for i in candidates
+            if _contains_phrase(VERSES[i]["tokens"], q_tokens)
+        ]
 
     hits: list[dict] = []
     by_surah: dict[int, dict] = {}
-    for idx in candidates:
+    total_occurrences = 0
+    for idx in hit_ids:
         verse = VERSES[idx]
-        toks = verse["tokens"]
-        if not _contains_phrase(toks, q_tokens):
+        occ = _count_in_verse(verse["tokens"], q_tokens, mode, forms_per_qt)
+        if occ == 0:
             continue
+        total_occurrences += occ
         hits.append(
             {
                 "surah_id": verse["surah_id"],
@@ -129,6 +159,7 @@ def search(query: str) -> dict:
                 "surah_en": verse["surah_en"],
                 "ayah": verse["ayah"],
                 "text": verse["text"],
+                "occurrences": occ,
             }
         )
         s = by_surah.setdefault(
@@ -138,18 +169,44 @@ def search(query: str) -> dict:
                 "name_ar": verse["surah_ar"],
                 "name_en": verse["surah_en"],
                 "count": 0,
+                "verses": 0,
             },
         )
-        s["count"] += 1
+        s["count"] += occ
+        s["verses"] += 1
 
     hits.sort(key=lambda h: (h["surah_id"], h["ayah"]))
     return {
         "query": query,
+        "mode": mode,
         "normalized": q,
-        "total": len(hits),
+        "total": total_occurrences,
+        "total_verses": len(hits),
         "by_surah": sorted(by_surah.values(), key=lambda s: s["id"]),
         "verses": hits,
     }
+
+
+def _count_in_verse(
+    verse_tokens: list[str],
+    q_tokens: list[str],
+    mode: str,
+    forms_per_qt: list[list[str]],
+) -> int:
+    """Total occurrences of the query inside a single verse."""
+    if len(q_tokens) == 1:
+        forms = forms_per_qt[0]
+        if mode == "contains":
+            return sum(1 for t in verse_tokens if any(f in t for f in forms))
+        return sum(1 for t in verse_tokens if t == q_tokens[0])
+    # Multi-word: count contiguous phrase matches (exact); for contains
+    # mode just report 1 per verse since substring positions overlap badly.
+    if mode == "exact":
+        n, m = len(verse_tokens), len(q_tokens)
+        return sum(
+            1 for i in range(n - m + 1) if verse_tokens[i : i + m] == q_tokens
+        )
+    return 1
 
 
 def _contains_phrase(tokens: list[str], phrase: list[str]) -> bool:
@@ -178,7 +235,10 @@ def index():
 @app.route("/api/search")
 def api_search():
     q = request.args.get("q", "", type=str).strip()
-    return jsonify(search(q))
+    mode = request.args.get("mode", "exact", type=str)
+    if mode not in ("exact", "contains"):
+        mode = "exact"
+    return jsonify(search(q, mode=mode))
 
 
 @app.route("/api/health")

@@ -13,7 +13,7 @@
 <main>
   <header>
     <h1>بحث القرآن الكريم</h1>
-    <p class="subtitle" lang="en" dir="ltr">Exact-word search across the Quran (Uthmani script)</p>
+    <p class="subtitle">بحث دقيق عن الكلمات في القرآن الكريم (الرسم العثماني)</p>
   </header>
 
   <form id="searchForm" autocomplete="off">
@@ -29,31 +29,17 @@
     <button type="submit">بحث</button>
   </form>
 
+  <label class="mode-toggle">
+    <input type="checkbox" id="broadMode" />
+    <span>بحث موسّع — يشمل البادئات المتصلة (بـ، وـ، فـ، تـ، لـ)</span>
+  </label>
+
   <section id="results" aria-live="polite"></section>
 
   <footer>
-    <p lang="en" dir="ltr">
-      Text: Tanzil Quran Uthmani Hafs · Search index: Imla'ei spelling ·
-      Diacritic-insensitive exact match.
-    </p>
+    <p>النص العثماني: حفص عن عاصم · فهرس البحث: الرسم الإملائي · بحث متجاهل للتشكيل</p>
   </footer>
 </main>
-
-<template id="tpl-summary">
-  <div class="summary">
-    <ul>
-      <li><strong class="total"></strong></li>
-      <li><span class="mentioned-label">Mentioned in:</span> <span class="surah-list"></span></li>
-    </ul>
-  </div>
-</template>
-
-<template id="tpl-verse">
-  <article class="verse">
-    <div class="ref"></div>
-    <div class="ayah" lang="ar" dir="rtl"></div>
-  </article>
-</template>
 
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>

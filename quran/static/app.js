@@ -1,24 +1,30 @@
 const form = document.getElementById("searchForm");
 const input = document.getElementById("query");
+const broadEl = document.getElementById("broadMode");
 const results = document.getElementById("results");
-const tplSummary = document.getElementById("tpl-summary");
-const tplVerse = document.getElementById("tpl-verse");
 
 form.addEventListener("submit", (e) => {
   e.preventDefault();
+  runSearch(input.value.trim());
+});
+
+broadEl.addEventListener("change", () => {
   const q = input.value.trim();
-  if (!q) return;
-  runSearch(q);
+  if (q) runSearch(q);
 });
 
 async function runSearch(q) {
+  if (!q) return;
   results.innerHTML = '<p class="empty">…</p>';
+  const mode = broadEl.checked ? "contains" : "exact";
   let data;
   try {
-    const r = await fetch("/api/search?q=" + encodeURIComponent(q));
+    const r = await fetch(
+      "/api/search?q=" + encodeURIComponent(q) + "&mode=" + mode
+    );
     data = await r.json();
-  } catch (err) {
-    results.innerHTML = '<p class="error">Network error. Please try again.</p>';
+  } catch {
+    results.innerHTML = '<p class="error">تعذّر الاتصال. حاول مرة أخرى.</p>';
     return;
   }
   render(data);
@@ -29,34 +35,69 @@ function render(data) {
   if (data.total === 0) {
     const p = document.createElement("p");
     p.className = "empty";
-    p.lang = "ar";
-    p.dir = "rtl";
     p.textContent = `لا توجد نتائج للكلمة: ${data.query}`;
     results.appendChild(p);
     return;
   }
 
-  // A. Top summary
-  const summary = tplSummary.content.cloneNode(true);
-  const word = `"${data.query}"`;
-  summary.querySelector(".total").textContent =
-    `Total occurrences of ${word}: ${data.total} ${data.total === 1 ? "time" : "times"}`;
-  summary.querySelector(".surah-list").textContent =
-    data.by_surah.map((s) => `${s.name_en} (${s.count})`).join(", ") + ".";
-  results.appendChild(summary);
+  // A. Top summary — in Arabic, with a collapsible surah dropdown.
+  const sum = document.createElement("div");
+  sum.className = "summary";
+  const word = `«${data.query}»`;
+  const modeLabel = data.mode === "contains" ? " (بحث موسّع)" : "";
+  const surahsCount = data.by_surah.length;
+
+  sum.innerHTML = `
+    <ul>
+      <li>
+        <strong>عدد مرات ورود كلمة ${escapeHtml(word)}: ${data.total} مرة${modeLabel}</strong>
+      </li>
+      <li>وردت في ${data.total_verses} آية، موزّعة على ${surahsCount} سورة.</li>
+    </ul>
+    <details class="surah-dropdown">
+      <summary>عرض السور التي وردت فيها الكلمة (${surahsCount})</summary>
+      <ol class="surah-list"></ol>
+    </details>
+  `;
+  const ol = sum.querySelector(".surah-list");
+  for (const s of data.by_surah) {
+    const li = document.createElement("li");
+    li.innerHTML =
+      `<span class="surah-name">${escapeHtml(s.name_ar)}</span>` +
+      ` <span class="surah-en" dir="ltr">${escapeHtml(s.name_en)}</span>` +
+      ` <span class="surah-count">${s.count}</span>`;
+    ol.appendChild(li);
+  }
+  results.appendChild(sum);
 
   // B. Verse list
   for (const v of data.verses) {
-    const node = tplVerse.content.cloneNode(true);
-    node.querySelector(".ref").textContent = `[${v.surah_en}: ${v.ayah}]`;
-    node.querySelector(".ayah").textContent = v.text;
-    results.appendChild(node);
+    const a = document.createElement("article");
+    a.className = "verse";
+    const ref = document.createElement("div");
+    ref.className = "ref";
+    ref.textContent = `[${v.surah_en}: ${v.ayah}]`;
+    const ay = document.createElement("div");
+    ay.className = "ayah";
+    ay.lang = "ar";
+    ay.dir = "rtl";
+    ay.textContent = v.text;
+    a.append(ref, ay);
+    results.appendChild(a);
   }
 }
 
-// Allow ?q= deep links
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 const params = new URLSearchParams(location.search);
 const initial = params.get("q");
+if (params.get("mode") === "contains") broadEl.checked = true;
 if (initial) {
   input.value = initial;
   runSearch(initial);
