@@ -30,35 +30,37 @@ BASE = pathlib.Path(__file__).parent
 DATA_FILE = BASE / "data" / "quran.json"
 
 # --- Arabic text normalization -------------------------------------------
-
-# Combining marks: tashkeel (fatha/kasra/damma/sukun/shadda/tanween),
-# Quranic annotation marks, dagger alef, tatweel.
-_DIACRITICS = re.compile(r"[ؐ-ًؚ-ٰٟۖ-ࣰۭ-ࣿـ]")
-_ALEFS = re.compile(r"[آأإٱٲٳٵ]")  # آ أ إ ٱ ٲ ٳ ٵ
+#
+# All Arabic ranges are written as \uXXXX escapes so editor bidi
+# reordering can\'t silently reshuffle the character class on edit.
+#   U+0610-061A  honorific marks
+#   U+064B-065F  tashkeel
+#   U+0670       superscript (dagger) alef
+#   U+06D6-06ED  Quranic annotation marks
+#   U+08F0-08FF  extended Arabic marks
+#   U+0640       tatweel
+_DIACRITICS = re.compile(
+    "[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u08F0-\u08FF\u0640]"
+)
+# U+0622 آ, U+0623 أ, U+0625 إ, U+0671 ٱ, U+0672, U+0673, U+0675 → U+0627 ا
+_ALEFS = re.compile("[\u0622\u0623\u0625\u0671\u0672\u0673\u0675]")
 
 
 def normalize(text: str) -> str:
-    """Fold a piece of Arabic text into the canonical search form.
-
-    - Strips diacritics, tatweel, and Quranic annotation marks.
-    - Unifies alef variants → ا, alef maksura → ي, ta marbuta → ه,
-      hamza-on-waw → و, hamza-on-ya → ي.
-    - Collapses whitespace.
-    """
+    """Fold a piece of Arabic text into the canonical search form."""
     text = unicodedata.normalize("NFC", text)
     text = _DIACRITICS.sub("", text)
-    text = _ALEFS.sub("ا", text)
+    text = _ALEFS.sub("\u0627", text)            # → alef
     text = (
-        text.replace("ى", "ي")  # ى → ي
-        .replace("ة", "ه")  # ة → ه
-        .replace("ؤ", "و")  # ؤ → و
-        .replace("ئ", "ي")  # ئ → ي
+        text.replace("\u0649", "\u064A")    # ى → ي
+        .replace("\u0629", "\u0647")        # ة → ه
+        .replace("\u0624", "\u0648")        # ؤ → و
+        .replace("\u0626", "\u064A")        # ئ → ي
     )
-    text = re.sub(r"\s+", " ", text).strip()
-    return text
+    return re.sub(r"\s+", " ", text).strip()
 
 
-_TOKEN_STRIP = re.compile(r"[^ء-ي]+")  # keep only Arabic letters
+_TOKEN_STRIP = re.compile("[^\u0621-\u064A]+")  # keep only Arabic letters
 
 
 def tokenize(normalized: str) -> list[str]:
