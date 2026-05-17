@@ -1,1 +1,2 @@
-# No external dependencies — standard library only
+Flask>=3.0
+gunicorn>=21.2
