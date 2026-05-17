@@ -1,8 +1,8 @@
 services:
   - type: web
-    name: oem-key-finder
+    name: quran-search
     env: python
     plan: free
-    buildCommand: ""
-    startCommand: python3 web_app.py
+    buildCommand: pip install -r quran/requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT --chdir quran app:app
     healthCheckPath: /api/health

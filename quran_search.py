@@ -385,11 +385,11 @@ def make_handler(index: Index):
     return Handler
 
 
-def find_port(preferred: int) -> int:
+def find_port(host: str, preferred: int) -> int:
     for p in (preferred, *range(preferred + 1, preferred + 50)):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
-                s.bind(("127.0.0.1", p))
+                s.bind((host, p))
                 return p
             except OSError:
                 continue
@@ -402,22 +402,28 @@ def main() -> int:
           file=sys.stderr)
     index = Index(surahs)
 
-    port = find_port(int(os.environ.get("PORT", DEFAULT_PORT)))
-    url = f"http://127.0.0.1:{port}/"
+    host = os.environ.get("HOST", "127.0.0.1")
+    requested_port = int(os.environ.get("PORT", DEFAULT_PORT))
+    # When running locally (loopback) try the next free port if the
+    # preferred one is busy. On a hosted platform (Render, Railway, Fly...)
+    # PORT is fixed and probing would just fail — bind to what we're told.
+    is_local = host in ("127.0.0.1", "localhost")
+    port = find_port(host, requested_port) if is_local else requested_port
 
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(index))
+    server = ThreadingHTTPServer((host, port), make_handler(index))
+    url = f"http://{host}:{port}/"
     print(f"\n  ✓ Quran search running at {url}", file=sys.stderr)
     print("  Press Ctrl-C to stop.\n", file=sys.stderr)
 
-    # Open the browser shortly after the server starts.
-    def _open():
-        time.sleep(0.4)
-        try:
-            webbrowser.open(url)
-        except Exception:
-            pass
+    if is_local:
+        def _open():
+            time.sleep(0.4)
+            try:
+                webbrowser.open(f"http://127.0.0.1:{port}/")
+            except Exception:
+                pass
 
-    threading.Thread(target=_open, daemon=True).start()
+        threading.Thread(target=_open, daemon=True).start()
 
     try:
         server.serve_forever()
