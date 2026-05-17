@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>بحث القرآن الكريم — Quranic Word Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main>
+  <header>
+    <h1>بحث القرآن الكريم</h1>
+    <p class="subtitle" lang="en" dir="ltr">Exact-word search across the Quran (Uthmani script)</p>
+  </header>
+
+  <form id="searchForm" autocomplete="off">
+    <input
+      id="query"
+      name="q"
+      type="search"
+      placeholder="اكتب كلمة عربية، مثل: الحمار، الجنة، موسى"
+      aria-label="كلمة البحث"
+      autofocus
+      required
+    />
+    <button type="submit">بحث</button>
+  </form>
+
+  <section id="results" aria-live="polite"></section>
+
+  <footer>
+    <p lang="en" dir="ltr">
+      Text: Tanzil Quran Uthmani Hafs · Search index: Imla'ei spelling ·
+      Diacritic-insensitive exact match.
+    </p>
+  </footer>
+</main>
+
+<template id="tpl-summary">
+  <div class="summary">
+    <ul>
+      <li><strong class="total"></strong></li>
+      <li><span class="mentioned-label">Mentioned in:</span> <span class="surah-list"></span></li>
+    </ul>
+  </div>
+</template>
+
+<template id="tpl-verse">
+  <article class="verse">
+    <div class="ref"></div>
+    <div class="ayah" lang="ar" dir="rtl"></div>
+  </article>
+</template>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
