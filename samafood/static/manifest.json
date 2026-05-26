@@ -1,0 +1,13 @@
+{
+  "name": "Sama Vendor Connect",
+  "short_name": "Sama",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b6e9c",
+  "theme_color": "#0b6e9c",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    { "src": "/static/icon.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}

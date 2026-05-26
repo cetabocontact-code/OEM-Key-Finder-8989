@@ -6,3 +6,10 @@ data/search_history.json
 
 out/
 .oem_key_finder_storage/
+
+# Sama vendor app local state
+data/samafood.db
+data/uploads/
+*.db
+venv/
+.venv/

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Sama Vendor Connect</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">Sama</span><h1>Admin dashboard</h1></div>
+    <div class="topbar-actions">
+      <span id="source-badge" class="tier-badge"></span>
+      <button id="logout" class="primary">Log out</button>
+    </div>
+  </header>
+  <main>
+    <section class="card form">
+      <h2>Send push notification</h2>
+      <label>Title<input id="n-title"></label>
+      <label>Message<input id="n-body"></label>
+      <label>Open URL<input id="n-url" value="/"></label>
+      <button id="send-notify" class="primary">Send to <span id="sub-count">0</span> subscribers</button>
+      <button id="sync-btn" class="ghost" style="border-color:#888">Sync catalog from SAP/Olive</button>
+      <p class="form-msg" id="admin-msg"></p>
+    </section>
+
+    <section class="card">
+      <h2>Vendor applications</h2>
+      <div id="apps"></div>
+    </section>
+
+    <section class="card">
+      <h2>Recent orders</h2>
+      <div id="orders"></div>
+    </section>
+  </main>
+  <script>
+    async function load() {
+      const res = await fetch("/api/admin/overview");
+      if (!res.ok) { location.href = "/admin/login"; return; }
+      const d = await res.json();
+      document.getElementById("sub-count").textContent = d.subscribers;
+      document.getElementById("source-badge").textContent = "source: " + d.product_source;
+      document.getElementById("apps").innerHTML = d.applications.map((a) =>
+        `<div class="order"><strong>${a.business_name}</strong> — ${a.contact_name} · ${a.phone}
+         <span class="meta">(${a.status})</span><div class="meta">docs: ${a.documents.length} · ${a.created_at}</div></div>`).join("") || "<p>None yet.</p>";
+      document.getElementById("orders").innerHTML = d.orders.map((o) =>
+        `<div class="order"><strong>#${o.id}</strong> — ${o.client} · ${o.total} JOD <span class="meta">(${o.status})</span><div class="meta">${o.created_at}</div></div>`).join("") || "<p>None yet.</p>";
+    }
+    function msg(text, ok) { const m = document.getElementById("admin-msg"); m.className = "form-msg " + (ok ? "ok" : "err"); m.textContent = text; }
+    document.getElementById("send-notify").addEventListener("click", async () => {
+      const res = await fetch("/api/admin/notify", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: document.getElementById("n-title").value, body: document.getElementById("n-body").value, url: document.getElementById("n-url").value }) });
+      const d = await res.json();
+      msg(res.ok ? `Sent to ${d.sent}/${d.total}.` : (d.error || "error"), res.ok);
+    });
+    document.getElementById("sync-btn").addEventListener("click", async () => {
+      const res = await fetch("/api/admin/sync", { method: "POST" });
+      const d = await res.json();
+      msg(res.ok ? `Synced ${d.synced} products from ${d.source}.` : (d.hint || d.error || "error"), res.ok);
+      if (res.ok) load();
+    });
+    document.getElementById("logout").addEventListener("click", async () => {
+      await fetch("/api/admin/logout", { method: "POST" }); location.href = "/admin/login";
+    });
+    load();
+  </script>
+</body>
+</html>

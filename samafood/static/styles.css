@@ -1,0 +1,84 @@
+:root {
+  --brand: #0b6e9c;
+  --brand-dark: #084f72;
+  --accent: #f5a623;
+  --bg: #f4f7fa;
+  --card: #ffffff;
+  --text: #1b2733;
+  --muted: #6b7a8a;
+  --ok: #1f9d55;
+  --err: #d64545;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, "Noto Sans Arabic", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+.hidden { display: none !important; }
+
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 1rem; padding: 0.8rem 1.2rem; background: var(--brand); color: #fff; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 0.8rem; }
+.logo {
+  background: #fff; color: var(--brand); font-weight: 800; font-size: 1.2rem;
+  padding: 0.35rem 0.6rem; border-radius: 0.5rem;
+}
+.topbar h1 { margin: 0; font-size: 1.1rem; }
+.tagline { margin: 0; font-size: 0.8rem; opacity: 0.85; }
+.topbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+.tier-badge { background: var(--accent); color: #2b2b2b; padding: 0.3rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: 700; }
+
+button, .ghost { font: inherit; cursor: pointer; border-radius: 0.5rem; border: none; padding: 0.5rem 0.9rem; }
+.primary { background: var(--accent); color: #2b2b2b; font-weight: 700; }
+.ghost { background: transparent; color: inherit; border: 1px solid rgba(255,255,255,0.6); text-decoration: none; }
+main .ghost { border-color: var(--muted); color: var(--text); }
+
+.tabs { display: flex; gap: 0.3rem; padding: 0.6rem 1.2rem; background: #fff; border-bottom: 1px solid #e2e8ee; overflow-x: auto; }
+.tab { background: transparent; color: var(--muted); font-weight: 600; }
+.tab.active { color: var(--brand); border-bottom: 3px solid var(--brand); border-radius: 0; }
+
+main { padding: 1.2rem; max-width: 1100px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+.card { background: var(--card); border-radius: 0.8rem; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.product .cat { font-size: 0.7rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+.product h3 { margin: 0.3rem 0; font-size: 1rem; }
+.product .size { color: var(--muted); font-size: 0.85rem; }
+.price-row { display: flex; justify-content: space-between; align-items: baseline; margin: 0.5rem 0; }
+.your-price { color: var(--brand); font-weight: 800; font-size: 1.15rem; }
+.base-price { color: var(--muted); text-decoration: line-through; font-size: 0.85rem; }
+.qty-row { display: flex; gap: 0.4rem; align-items: center; }
+.qty-row input { width: 4rem; padding: 0.4rem; border: 1px solid #cdd7e0; border-radius: 0.4rem; }
+
+.offer { border-inline-start: 4px solid var(--accent); background: #fff; padding: 0.9rem 1rem; border-radius: 0.6rem; margin-bottom: 0.8rem; }
+.offer .kind { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; font-weight: 700; }
+.offer h3 { margin: 0.2rem 0; }
+
+.form label { display: block; margin-bottom: 0.8rem; font-weight: 600; }
+.form input { display: block; width: 100%; margin-top: 0.3rem; padding: 0.6rem; border: 1px solid #cdd7e0; border-radius: 0.5rem; font: inherit; }
+.form-msg { min-height: 1.2rem; font-size: 0.9rem; }
+.form-msg.ok { color: var(--ok); }
+.form-msg.err { color: var(--err); }
+
+.cart {
+  position: fixed; inset-inline-end: 0; bottom: 0; width: min(360px, 100%);
+  background: #fff; border-radius: 1rem 1rem 0 0; box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+  padding: 1rem; max-height: 70vh; overflow-y: auto; z-index: 20;
+}
+.cart-line { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid #eef2f6; font-size: 0.9rem; }
+.cart-totals { margin: 0.8rem 0; }
+.cart-totals > div { display: flex; justify-content: space-between; padding: 0.2rem 0; }
+.cart-totals .grand { font-weight: 800; font-size: 1.1rem; border-top: 1px solid #e2e8ee; margin-top: 0.3rem; padding-top: 0.5rem; }
+
+.order { background: #fff; border-radius: 0.6rem; padding: 0.8rem 1rem; margin-bottom: 0.8rem; }
+.order .meta { color: var(--muted); font-size: 0.8rem; }
+
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.modal-card { background: #fff; border-radius: 1rem; padding: 1.5rem; width: min(360px, 92%); position: relative; }
+#close-login { position: absolute; inset-inline-end: 0.6rem; top: 0.4rem; background: transparent; font-size: 1.4rem; }

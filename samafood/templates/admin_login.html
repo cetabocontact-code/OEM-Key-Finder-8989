@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin · Sama</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <main style="max-width:380px;margin-top:3rem">
+    <form class="card form" id="admin-login">
+      <h2>Admin login</h2>
+      <label>Password<input type="password" id="admin-pass" required></label>
+      <button class="primary" type="submit">Log in</button>
+      <p class="form-msg" id="admin-msg"></p>
+    </form>
+  </main>
+  <script>
+    document.getElementById("admin-login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const res = await fetch("/api/admin/login", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: document.getElementById("admin-pass").value }),
+      });
+      const msg = document.getElementById("admin-msg");
+      if (res.ok) { location.href = "/admin"; }
+      else { const d = await res.json(); msg.className = "form-msg err"; msg.textContent = d.error || "error"; }
+    });
+  </script>
+</body>
+</html>

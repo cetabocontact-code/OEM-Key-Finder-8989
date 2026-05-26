@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ strings['app_name'] }}</title>
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#0b6e9c">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body data-lang="{{ lang }}" data-vapid="{{ vapid_public_key }}">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">Sama</span>
+      <div>
+        <h1>{{ strings['app_name'] }}</h1>
+        <p class="tagline">{{ strings['tagline'] }}</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span id="tier-badge" class="tier-badge hidden"></span>
+      <button id="notify-btn" class="ghost">{{ strings['enable_notifications'] }}</button>
+      <a class="ghost" href="?lang={{ 'en' if lang == 'ar' else 'ar' }}">{{ 'EN' if lang == 'ar' else 'عربي' }}</a>
+      {% if client %}
+        <button id="logout-btn" class="primary">{{ strings['logout'] }}</button>
+      {% else %}
+        <button id="login-btn" class="primary">{{ strings['login'] }}</button>
+      {% endif %}
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="catalog">{{ strings['catalog'] }}</button>
+    <button class="tab" data-tab="offers">{{ strings['offers'] }}</button>
+    <button class="tab" data-tab="orders">{{ strings['orders'] }}</button>
+    <button class="tab" data-tab="vendor">{{ strings['become_vendor'] }}</button>
+  </nav>
+
+  <main>
+    <section id="catalog" class="panel active">
+      <div id="catalog-grid" class="grid"></div>
+    </section>
+
+    <section id="offers" class="panel">
+      <div id="offers-list"></div>
+    </section>
+
+    <section id="orders" class="panel">
+      <div id="orders-list"></div>
+    </section>
+
+    <section id="vendor" class="panel">
+      <form id="vendor-form" class="card form" enctype="multipart/form-data">
+        <h2>{{ strings['become_vendor'] }}</h2>
+        <label>{{ strings['business_name'] }}<input name="business_name" required></label>
+        <label>{{ strings['contact_name'] }}<input name="contact_name" required></label>
+        <label>{{ strings['phone'] }}<input name="phone" placeholder="+9627..." required></label>
+        <label>{{ strings['documents'] }} (PDF/JPG/PNG)
+          <input type="file" name="documents" accept=".pdf,.png,.jpg,.jpeg" multiple>
+        </label>
+        <button class="primary" type="submit">{{ strings['submit'] }}</button>
+        <p class="form-msg" id="vendor-msg"></p>
+      </form>
+    </section>
+  </main>
+
+  <aside id="cart" class="cart hidden">
+    <h2>{{ strings['cart'] }}</h2>
+    <div id="cart-items"></div>
+    <div class="cart-totals">
+      <div><span>{{ strings['subtotal'] }}</span><span id="cart-subtotal">0</span></div>
+      <div><span>{{ strings['discount'] }}</span><span id="cart-discount">0%</span></div>
+      <div class="grand"><span>{{ strings['total'] }}</span><span id="cart-total">0</span></div>
+    </div>
+    <button id="place-order" class="primary">{{ strings['place_order'] }}</button>
+    <p class="form-msg" id="order-msg"></p>
+  </aside>
+
+  <div id="login-modal" class="modal hidden">
+    <div class="modal-card">
+      <h2>{{ strings['login'] }}</h2>
+      <div id="login-step-phone">
+        <label>{{ strings['phone'] }}<input id="login-phone" placeholder="+9627..."></label>
+        <button id="send-code" class="primary">{{ strings['send_code'] }}</button>
+      </div>
+      <div id="login-step-code" class="hidden">
+        <label>{{ strings['enter_code'] }}<input id="login-code" inputmode="numeric"></label>
+        <button id="verify-code" class="primary">{{ strings['verify'] }}</button>
+      </div>
+      <p class="form-msg" id="login-msg"></p>
+      <button id="close-login" class="ghost">×</button>
+    </div>
+  </div>
+
+  <script>window.SAMA_LANG = "{{ lang }}";</script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

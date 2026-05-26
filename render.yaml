@@ -1,8 +1,15 @@
 services:
   - type: web
-    name: oem-key-finder
+    name: samafood-vendor-app
     env: python
     plan: free
-    buildCommand: ""
-    startCommand: python3 web_app.py
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: gunicorn "samafood:create_app()" --bind 0.0.0.0:$PORT
     healthCheckPath: /api/health
+    envVars:
+      - key: SAMA_SECRET_KEY
+        generateValue: true
+      - key: SAMA_ADMIN_PASSWORD
+        sync: false
+      - key: SAMA_DB_PATH
+        value: /tmp/samafood.db
