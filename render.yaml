@@ -7,6 +7,8 @@ services:
     startCommand: gunicorn "samafood:create_app()" --bind 0.0.0.0:$PORT
     healthCheckPath: /api/health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: SAMA_SECRET_KEY
         generateValue: true
       - key: SAMA_ADMIN_PASSWORD

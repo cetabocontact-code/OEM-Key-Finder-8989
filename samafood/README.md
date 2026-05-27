@@ -9,6 +9,21 @@ RTL) / English**. Includes an admin dashboard.
 It is **complementary** to Sama's existing systems (SAP Business One for
 accounting, Olive for sales/inventory/GPS/invoicing) — not a replacement.
 
+## Deploy to Render (gets you a public test link)
+
+One-click (repo already contains `render.yaml`):
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/cetabocontact-code/OEM-Key-Finder-8989/tree/claude/vendor-notification-app-xaE8l)
+
+Or manually: render.com → **New → Blueprint** → connect this repo and the
+`claude/vendor-notification-app-xaE8l` branch → set **`SAMA_ADMIN_PASSWORD`**
+when prompted → Apply. Render builds with `render.yaml`, gives an HTTPS URL
+(e.g. `https://samafood-vendor-app.onrender.com`), which is the link you can
+open on a phone. HTTPS also makes push notifications work.
+
+Demo login on the live link: phone **+962790000000** (OTP shows on screen in
+dev mode). Admin at `/admin`.
+
 ## Run locally
 
 ```bash

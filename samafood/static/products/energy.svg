@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 300" role="img" aria-label="Raz energy can">
+  <rect x="40" y="34" width="40" height="232" rx="10" fill="#15171c" stroke="#000"/>
+  <rect x="40" y="34" width="40" height="12" rx="6" fill="#b9c1c9"/>
+  <path d="M40 150 l40-26 v18 l-40 26 z" fill="#e8232a"/>
+  <path d="M40 176 l40-26 v18 l-40 26 z" fill="#1f3fa0"/>
+  <text x="60" y="120" text-anchor="middle" font-family="Verdana,sans-serif" font-size="20" font-weight="800" fill="#fff" letter-spacing="1">RAZ</text>
+  <text x="60" y="214" text-anchor="middle" font-family="Verdana,sans-serif" font-size="6.5" fill="#9aa3ad" letter-spacing="2">ENERGY</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 300" role="img" aria-label="Sama water bottle">
+  <defs>
+    <linearGradient id="w" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#eaf4ff"/><stop offset="0.5" stop-color="#cfe6fb"/><stop offset="1" stop-color="#e6f2ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="48" y="6" width="24" height="20" rx="4" fill="#1f3fa0"/>
+  <rect x="50" y="24" width="20" height="10" fill="#dfeaf8"/>
+  <path d="M40 36 q-2 10 -6 18 q-4 8 -4 20 v196 a10 10 0 0 0 10 10 h40 a10 10 0 0 0 10-10 V74 q0-12-4-20 q-4-8-6-18 z" fill="url(#w)" stroke="#bcd6f2"/>
+  <g stroke="#bcd6f2" stroke-width="1.5" opacity="0.7">
+    <line x1="31" y1="92" x2="89" y2="92"/><line x1="31" y1="104" x2="89" y2="104"/>
+    <line x1="31" y1="250" x2="89" y2="250"/><line x1="31" y1="262" x2="89" y2="262"/>
+  </g>
+  <rect x="28" y="150" width="64" height="70" rx="4" fill="#1f3fa0"/>
+  <g transform="translate(60,178)">
+    <path transform="translate(-12,-14) rotate(-30)" d="M0,2 C-4,-7 -3,-12 0,-16 C3,-12 4,-7 0,2 Z" fill="#e8232a"/>
+    <path transform="translate(0,-14) rotate(8)" d="M0,2 C-4,-8 -3,-14 0,-18 C4,-14 5,-8 0,2 Z" fill="#fff"/>
+    <circle cx="-12" cy="0" r="2.6" fill="#fff"/>
+  </g>
+  <text x="60" y="200" text-anchor="middle" font-family="Verdana,sans-serif" font-size="17" font-weight="800" fill="#fff" letter-spacing="-1">sama</text>
+  <text x="60" y="212" text-anchor="middle" font-family="Verdana,sans-serif" font-size="5.5" fill="#cfe0ff" letter-spacing="1">BOTTLED DRINKING WATER</text>
+</svg>

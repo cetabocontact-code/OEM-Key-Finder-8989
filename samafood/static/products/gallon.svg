@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" role="img" aria-label="Sama 5 gallon jug">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d7ecff"/><stop offset="0.5" stop-color="#bfe0fb"/><stop offset="1" stop-color="#d7ecff"/>
+    </linearGradient>
+  </defs>
+  <rect x="78" y="6" width="44" height="22" rx="5" fill="#1f3fa0"/>
+  <rect x="84" y="26" width="32" height="14" fill="#cfe3f7"/>
+  <path d="M40 44 q60-12 120 0 q14 4 14 22 v126 a14 14 0 0 1-14 14 H40 a14 14 0 0 1-14-14 V66 q0-18 14-22 z" fill="url(#g)" stroke="#a9caec"/>
+  <rect x="44" y="96" width="112" height="70" rx="6" fill="#1f3fa0"/>
+  <g transform="translate(100,126)">
+    <path transform="translate(-18,-18) rotate(-30)" d="M0,3 C-6,-10 -4,-18 0,-24 C5,-18 6,-10 0,3 Z" fill="#e8232a"/>
+    <path transform="translate(0,-18) rotate(8)" d="M0,3 C-6,-12 -4,-20 0,-26 C6,-20 7,-12 0,3 Z" fill="#fff"/>
+    <circle cx="-18" cy="0" r="4" fill="#fff"/>
+  </g>
+  <text x="100" y="156" text-anchor="middle" font-family="Verdana,sans-serif" font-size="30" font-weight="800" fill="#fff" letter-spacing="-2">sama</text>
+</svg>

@@ -1,25 +1,161 @@
 {
   "tiers": [
-    { "name_en": "Bronze", "name_ar": "برونزي", "min_spend": 0, "max_spend": 10000, "discount_pct": 0 },
-    { "name_en": "Silver", "name_ar": "فضي", "min_spend": 10000, "max_spend": 20000, "discount_pct": 4 },
-    { "name_en": "Gold", "name_ar": "ذهبي", "min_spend": 20000, "max_spend": 40000, "discount_pct": 7 },
-    { "name_en": "Platinum", "name_ar": "بلاتيني", "min_spend": 40000, "max_spend": null, "discount_pct": 10 }
+    {
+      "name_en": "Bronze",
+      "name_ar": "برونزي",
+      "min_spend": 0,
+      "max_spend": 10000,
+      "discount_pct": 0
+    },
+    {
+      "name_en": "Silver",
+      "name_ar": "فضي",
+      "min_spend": 10000,
+      "max_spend": 20000,
+      "discount_pct": 4
+    },
+    {
+      "name_en": "Gold",
+      "name_ar": "ذهبي",
+      "min_spend": 20000,
+      "max_spend": 40000,
+      "discount_pct": 7
+    },
+    {
+      "name_en": "Platinum",
+      "name_ar": "بلاتيني",
+      "min_spend": 40000,
+      "max_spend": null,
+      "discount_pct": 10
+    }
   ],
   "products": [
-    { "sku": "WTR-200", "name_en": "Sama Water 200 ml (case of 24)", "name_ar": "مياه سما 200 مل (كرتون 24)", "category": "water", "size": "200 ml x24", "base_price": 1.80, "min_order": 5, "stock": 1500, "image_url": "" },
-    { "sku": "WTR-330", "name_en": "Sama Water 330 ml (case of 12)", "name_ar": "مياه سما 330 مل (كرتون 12)", "category": "water", "size": "330 ml x12", "base_price": 1.50, "min_order": 5, "stock": 1200, "image_url": "" },
-    { "sku": "WTR-600", "name_en": "Sama Water 600 ml (case of 12)", "name_ar": "مياه سما 600 مل (كرتون 12)", "category": "water", "size": "600 ml x12", "base_price": 1.95, "min_order": 5, "stock": 900, "image_url": "" },
-    { "sku": "WTR-1500", "name_en": "Sama Water 1.5 L (case of 6)", "name_ar": "مياه سما 1.5 لتر (كرتون 6)", "category": "water", "size": "1.5 L x6", "base_price": 2.40, "min_order": 5, "stock": 700, "image_url": "" },
-    { "sku": "WTR-GAL5", "name_en": "Sama Water 5-Gallon Dispenser Jug", "name_ar": "مياه سما عبوة 5 جالون", "category": "water", "size": "5 gallon", "base_price": 2.20, "min_order": 2, "stock": 300, "image_url": "" },
-    { "sku": "JUC-ORG-1L", "name_en": "Orange Juice 1 L (case of 8)", "name_ar": "عصير برتقال 1 لتر (كرتون 8)", "category": "juice", "size": "1 L x8", "base_price": 6.50, "min_order": 3, "stock": 400, "image_url": "" },
-    { "sku": "JUC-MNG-250", "name_en": "Mango Juice 250 ml (case of 24)", "name_ar": "عصير مانجو 250 مل (كرتون 24)", "category": "juice", "size": "250 ml x24", "base_price": 7.20, "min_order": 3, "stock": 350, "image_url": "" },
-    { "sku": "SOD-COLA-330", "name_en": "Cola 330 ml (case of 24)", "name_ar": "كولا 330 مل (كرتون 24)", "category": "soda", "size": "330 ml x24", "base_price": 5.80, "min_order": 3, "stock": 600, "image_url": "" },
-    { "sku": "SOD-LMN-330", "name_en": "Lemon Soda 330 ml (case of 24)", "name_ar": "صودا ليمون 330 مل (كرتون 24)", "category": "soda", "size": "330 ml x24", "base_price": 5.80, "min_order": 3, "stock": 550, "image_url": "" },
-    { "sku": "ENG-RAZ-250", "name_en": "Raz Energy Drink 250 ml (case of 24)", "name_ar": "مشروب طاقة راز 250 مل (كرتون 24)", "category": "energy", "size": "250 ml x24", "base_price": 9.60, "min_order": 3, "stock": 480, "image_url": "" }
+    {
+      "sku": "WTR-200",
+      "name_en": "Sama Water 200 ml (case of 24)",
+      "name_ar": "مياه سما 200 مل (كرتون 24)",
+      "category": "water",
+      "size": "200 ml x24",
+      "base_price": 1.8,
+      "min_order": 5,
+      "stock": 1500,
+      "image_url": "/static/products/water.svg"
+    },
+    {
+      "sku": "WTR-330",
+      "name_en": "Sama Water 330 ml (case of 12)",
+      "name_ar": "مياه سما 330 مل (كرتون 12)",
+      "category": "water",
+      "size": "330 ml x12",
+      "base_price": 1.5,
+      "min_order": 5,
+      "stock": 1200,
+      "image_url": "/static/products/water.svg"
+    },
+    {
+      "sku": "WTR-600",
+      "name_en": "Sama Water 600 ml (case of 12)",
+      "name_ar": "مياه سما 600 مل (كرتون 12)",
+      "category": "water",
+      "size": "600 ml x12",
+      "base_price": 1.95,
+      "min_order": 5,
+      "stock": 900,
+      "image_url": "/static/products/water.svg"
+    },
+    {
+      "sku": "WTR-1500",
+      "name_en": "Sama Water 1.5 L (case of 6)",
+      "name_ar": "مياه سما 1.5 لتر (كرتون 6)",
+      "category": "water",
+      "size": "1.5 L x6",
+      "base_price": 2.4,
+      "min_order": 5,
+      "stock": 700,
+      "image_url": "/static/products/water.svg"
+    },
+    {
+      "sku": "WTR-GAL5",
+      "name_en": "Sama Water 5-Gallon Dispenser Jug",
+      "name_ar": "مياه سما عبوة 5 جالون",
+      "category": "water",
+      "size": "5 gallon",
+      "base_price": 2.2,
+      "min_order": 2,
+      "stock": 300,
+      "image_url": "/static/products/gallon.svg"
+    },
+    {
+      "sku": "JUC-ORG-1L",
+      "name_en": "Orange Juice 1 L (case of 8)",
+      "name_ar": "عصير برتقال 1 لتر (كرتون 8)",
+      "category": "juice",
+      "size": "1 L x8",
+      "base_price": 6.5,
+      "min_order": 3,
+      "stock": 400,
+      "image_url": "/static/products/juice.svg"
+    },
+    {
+      "sku": "JUC-MNG-250",
+      "name_en": "Mango Juice 250 ml (case of 24)",
+      "name_ar": "عصير مانجو 250 مل (كرتون 24)",
+      "category": "juice",
+      "size": "250 ml x24",
+      "base_price": 7.2,
+      "min_order": 3,
+      "stock": 350,
+      "image_url": "/static/products/juice.svg"
+    },
+    {
+      "sku": "SOD-COLA-330",
+      "name_en": "Cola 330 ml (case of 24)",
+      "name_ar": "كولا 330 مل (كرتون 24)",
+      "category": "soda",
+      "size": "330 ml x24",
+      "base_price": 5.8,
+      "min_order": 3,
+      "stock": 600,
+      "image_url": "/static/products/soda.svg"
+    },
+    {
+      "sku": "SOD-LMN-330",
+      "name_en": "Lemon Soda 330 ml (case of 24)",
+      "name_ar": "صودا ليمون 330 مل (كرتون 24)",
+      "category": "soda",
+      "size": "330 ml x24",
+      "base_price": 5.8,
+      "min_order": 3,
+      "stock": 550,
+      "image_url": "/static/products/soda.svg"
+    },
+    {
+      "sku": "ENG-RAZ-250",
+      "name_en": "Raz Energy Drink 250 ml (case of 24)",
+      "name_ar": "مشروب طاقة راز 250 مل (كرتون 24)",
+      "category": "energy",
+      "size": "250 ml x24",
+      "base_price": 9.6,
+      "min_order": 3,
+      "stock": 480,
+      "image_url": "/static/products/energy.svg"
+    }
   ],
   "offers": [
-    { "title_en": "Buy 10 get 5 free", "title_ar": "اشترِ 10 واحصل على 5 مجاناً", "body_en": "On all water cartons this month.", "body_ar": "على جميع كراتين المياه هذا الشهر.", "kind": "monthly" },
-    { "title_en": "Free delivery over 200 JOD", "title_ar": "توصيل مجاني فوق 200 دينار", "body_en": "Weekly offer for all approved clients.", "body_ar": "عرض أسبوعي لجميع العملاء المعتمدين.", "kind": "weekly" }
+    {
+      "title_en": "Buy 10 get 5 free",
+      "title_ar": "اشترِ 10 واحصل على 5 مجاناً",
+      "body_en": "On all water cartons this month.",
+      "body_ar": "على جميع كراتين المياه هذا الشهر.",
+      "kind": "monthly"
+    },
+    {
+      "title_en": "Free delivery over 200 JOD",
+      "title_ar": "توصيل مجاني فوق 200 دينار",
+      "body_en": "Weekly offer for all approved clients.",
+      "body_ar": "عرض أسبوعي لجميع العملاء المعتمدين.",
+      "kind": "weekly"
+    }
   ],
   "demo_client": {
     "name_en": "Demo Market",
