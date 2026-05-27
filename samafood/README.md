@@ -42,9 +42,10 @@ shown on screen.
 
 | Variable | Purpose |
 | --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string. **If set, the app uses Postgres** (production / Render). If unset, it falls back to local SQLite. |
 | `SAMA_SECRET_KEY` | Flask session signing key (Render auto-generates). |
 | `SAMA_ADMIN_PASSWORD` | Password for `/admin`. **Required** to use admin. |
-| `SAMA_DB_PATH` | SQLite path (defaults to `data/samafood.db`). |
+| `SAMA_DB_PATH` | SQLite path for local dev (defaults to `data/samafood.db`). Ignored when `DATABASE_URL` is set. |
 | `SAMA_UPLOAD_DIR` | Where vendor documents are stored. |
 | `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_CONTACT` | Web Push keys. Auto-generated if unset (set them in prod so subscriptions survive restarts). |
 | `SAP_SL_URL` / `SAP_SL_COMPANYDB` / `SAP_SL_USER` / `SAP_SL_PASSWORD` | SAP Business One Service Layer — enables catalog sync. |

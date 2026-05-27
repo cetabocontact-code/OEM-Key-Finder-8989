@@ -147,7 +147,7 @@ def create_app() -> Flask:
     def health():
         conn = db.get_db()
         try:
-            n = conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+            n = conn.execute("SELECT COUNT(*) AS n FROM products").fetchone()["n"]
         finally:
             conn.close()
         return jsonify({"ok": True, "products": n})
@@ -312,11 +312,11 @@ def create_app() -> Flask:
             if not line_items:
                 return jsonify({"error": "empty_order"}), 400
             total = round(subtotal * (1 - discount / 100), 3)
-            order_id = conn.execute(
+            order_id = conn.insert(
                 """INSERT INTO orders (business_id, user_id, items_json, subtotal, discount_pct, total, status, note, created_at)
                    VALUES (?,?,?,?,?,?,'submitted',?,?)""",
                 (user["business_id"], user["user_id"], json.dumps(line_items, ensure_ascii=False), round(subtotal, 3), discount, total, note, db.utc_now()),
-            ).lastrowid
+            )
             conn.commit()
         finally:
             conn.close()
@@ -507,9 +507,9 @@ def create_app() -> Flask:
                     "SELECT id, business_name, contact_name, phone, status, documents_json, created_at FROM vendor_applications ORDER BY id DESC LIMIT 50"
                 ).fetchall()
             )
-            subs = conn.execute("SELECT COUNT(*) FROM push_subscriptions").fetchone()[0]
-            businesses = conn.execute("SELECT COUNT(*) FROM businesses").fetchone()[0]
-            users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+            subs = conn.execute("SELECT COUNT(*) AS n FROM push_subscriptions").fetchone()["n"]
+            businesses = conn.execute("SELECT COUNT(*) AS n FROM businesses").fetchone()["n"]
+            users = conn.execute("SELECT COUNT(*) AS n FROM users").fetchone()["n"]
         finally:
             conn.close()
         for a in apps:

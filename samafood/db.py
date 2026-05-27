@@ -1,4 +1,9 @@
-"""SQLite storage for the Sama Food vendor app."""
+"""Storage layer for the Sama Food vendor app.
+
+Dual-mode: uses PostgreSQL when DATABASE_URL is set (production / Render),
+otherwise a local SQLite file (dev). A thin connection wrapper unifies the
+two APIs so the rest of the app uses one query style (`?` placeholders).
+"""
 
 from __future__ import annotations
 
@@ -9,11 +14,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+IS_PG = bool(DATABASE_URL)
 DB_PATH = Path(os.environ.get("SAMA_DB_PATH", Path(__file__).resolve().parent.parent / "data" / "samafood.db"))
+
+_PK = "SERIAL PRIMARY KEY" if IS_PG else "INTEGER PRIMARY KEY AUTOINCREMENT"
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS tiers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     name_en TEXT NOT NULL,
     name_ar TEXT NOT NULL,
     min_spend REAL NOT NULL,
@@ -22,7 +31,7 @@ CREATE TABLE IF NOT EXISTS tiers (
 );
 
 CREATE TABLE IF NOT EXISTS businesses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     name_en TEXT NOT NULL,
     name_ar TEXT NOT NULL,
     phone TEXT NOT NULL,
@@ -34,7 +43,7 @@ CREATE TABLE IF NOT EXISTS businesses (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     business_id INTEGER NOT NULL REFERENCES businesses(id),
     name TEXT NOT NULL,
     phone TEXT NOT NULL UNIQUE,
@@ -44,7 +53,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     sku TEXT NOT NULL UNIQUE,
     name_en TEXT NOT NULL,
     name_ar TEXT NOT NULL,
@@ -58,7 +67,7 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS offers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     title_en TEXT NOT NULL,
     title_ar TEXT NOT NULL,
     body_en TEXT NOT NULL DEFAULT '',
@@ -69,7 +78,7 @@ CREATE TABLE IF NOT EXISTS offers (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     business_id INTEGER NOT NULL REFERENCES businesses(id),
     user_id INTEGER REFERENCES users(id),
     items_json TEXT NOT NULL,
@@ -82,7 +91,7 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 CREATE TABLE IF NOT EXISTS vendor_applications (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     business_name TEXT NOT NULL,
     contact_name TEXT NOT NULL,
     phone TEXT NOT NULL,
@@ -100,7 +109,7 @@ CREATE TABLE IF NOT EXISTS otp_codes (
 );
 
 CREATE TABLE IF NOT EXISTS push_subscriptions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {pk},
     user_id INTEGER REFERENCES users(id),
     endpoint TEXT NOT NULL UNIQUE,
     subscription_json TEXT NOT NULL,
@@ -113,26 +122,75 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def get_db() -> sqlite3.Connection:
+class Conn:
+    """Unifies sqlite3 and psycopg behind one `?`-placeholder API."""
+
+    def __init__(self, raw: Any, is_pg: bool) -> None:
+        self.raw = raw
+        self.is_pg = is_pg
+
+    def execute(self, sql: str, params: tuple = ()):  # noqa: ANN201
+        if self.is_pg:
+            cur = self.raw.cursor()
+            cur.execute(sql.replace("?", "%s"), params)
+            return cur
+        return self.raw.execute(sql, params)
+
+    def insert(self, sql: str, params: tuple = ()) -> int:
+        """Run an INSERT and return the new row id."""
+        if self.is_pg:
+            sql = sql.replace("?", "%s")
+            if "returning" not in sql.lower():
+                sql += " RETURNING id"
+            cur = self.raw.cursor()
+            cur.execute(sql, params)
+            return cur.fetchone()["id"]
+        return self.raw.execute(sql, params).lastrowid
+
+    def executescript(self, script: str) -> None:
+        if self.is_pg:
+            cur = self.raw.cursor()
+            for stmt in (s.strip() for s in script.split(";") if s.strip()):
+                cur.execute(stmt)
+            return
+        self.raw.executescript(script)
+
+    def commit(self) -> None:
+        self.raw.commit()
+
+    def close(self) -> None:
+        self.raw.close()
+
+
+def get_db() -> Conn:
+    if IS_PG:
+        import psycopg
+        from psycopg.rows import dict_row
+
+        url = DATABASE_URL
+        if url.startswith("postgres://"):
+            url = "postgresql://" + url[len("postgres://") :]
+        return Conn(psycopg.connect(url, row_factory=dict_row), True)
+
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    raw = sqlite3.connect(DB_PATH)
+    raw.row_factory = sqlite3.Row
+    raw.execute("PRAGMA foreign_keys = ON")
+    return Conn(raw, False)
 
 
 def init_db() -> None:
     conn = get_db()
     try:
-        conn.executescript(SCHEMA)
+        conn.executescript(SCHEMA.format(pk=_PK))
         conn.commit()
-        if conn.execute("SELECT COUNT(*) FROM tiers").fetchone()[0] == 0:
+        if conn.execute("SELECT COUNT(*) AS n FROM tiers").fetchone()["n"] == 0:
             _seed(conn)
     finally:
         conn.close()
 
 
-def _seed(conn: sqlite3.Connection) -> None:
+def _seed(conn: Conn) -> None:
     """Seed tiers, products, offers and a demo client.
 
     Replaced by SAP B1 / Olive sync once live credentials are configured.
@@ -165,11 +223,11 @@ def _seed(conn: sqlite3.Connection) -> None:
 
     demo = data["demo_business"]
     tier_id = tier_for_spend(conn, demo["yearly_spend"])
-    business_id = conn.execute(
+    business_id = conn.insert(
         """INSERT INTO businesses (name_en, name_ar, phone, client_type, yearly_spend, tier_id, status, created_at)
            VALUES (?,?,?,?,?,?,'approved',?)""",
         (demo["name_en"], demo["name_ar"], demo["phone"], demo["client_type"], demo["yearly_spend"], tier_id, utc_now()),
-    ).lastrowid
+    )
     for user in demo["users"]:
         conn.execute(
             "INSERT INTO users (business_id, name, phone, role, status, created_at) VALUES (?,?,?,?,'active',?)",
@@ -178,7 +236,7 @@ def _seed(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def tier_for_spend(conn: sqlite3.Connection, spend: float) -> int | None:
+def tier_for_spend(conn: Conn, spend: float) -> int | None:
     """Pick the tier whose spend band contains `spend` (max_spend NULL = open-ended)."""
     row = conn.execute(
         """SELECT id FROM tiers
@@ -189,5 +247,5 @@ def tier_for_spend(conn: sqlite3.Connection, spend: float) -> int | None:
     return row["id"] if row else None
 
 
-def rows_to_dicts(rows: list[sqlite3.Row]) -> list[dict[str, Any]]:
+def rows_to_dicts(rows: Any) -> list[dict[str, Any]]:
     return [dict(row) for row in rows]

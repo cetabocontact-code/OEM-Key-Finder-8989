@@ -1,3 +1,7 @@
+databases:
+  - name: samafood-db
+    plan: free
+
 services:
   - type: web
     name: samafood-vendor-app
@@ -13,5 +17,7 @@ services:
         generateValue: true
       - key: SAMA_ADMIN_PASSWORD
         sync: false
-      - key: SAMA_DB_PATH
-        value: /tmp/samafood.db
+      - key: DATABASE_URL
+        fromDatabase:
+          name: samafood-db
+          property: connectionString
