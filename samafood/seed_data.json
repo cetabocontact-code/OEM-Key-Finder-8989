@@ -157,11 +157,15 @@
       "kind": "weekly"
     }
   ],
-  "demo_client": {
+  "demo_business": {
     "name_en": "Demo Market",
     "name_ar": "سوبرماركت تجريبي",
     "phone": "+962790000000",
     "client_type": "supermarket",
-    "yearly_spend": 15000
+    "yearly_spend": 15000,
+    "users": [
+      { "name": "Owner", "phone": "+962790000000", "role": "owner" },
+      { "name": "Buyer", "phone": "+962790000001", "role": "buyer" }
+    ]
   }
 }

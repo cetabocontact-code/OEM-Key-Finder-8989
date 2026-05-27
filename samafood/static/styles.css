@@ -67,7 +67,12 @@ main { padding: 1.2rem; max-width: 1100px; margin: 0 auto; }
 .offer h3 { margin: 0.2rem 0; }
 
 .form label { display: block; margin-bottom: 0.8rem; font-weight: 600; }
-.form input { display: block; width: 100%; margin-top: 0.3rem; padding: 0.6rem; border: 1px solid #cdd7e0; border-radius: 0.5rem; font: inherit; }
+.form input, .form select { display: block; width: 100%; margin-top: 0.3rem; padding: 0.6rem; border: 1px solid #cdd7e0; border-radius: 0.5rem; font: inherit; background: #fff; }
+.faq { border-bottom: 1px solid #eef2f6; padding: 0.6rem 0; }
+.faq summary { cursor: pointer; font-weight: 600; color: var(--brand); }
+.faq p { color: var(--text); margin: 0.5rem 0 0; }
+.card + .card { margin-top: 1rem; }
+.card a { color: var(--brand); }
 .form-msg { min-height: 1.2rem; font-size: 0.9rem; }
 .form-msg.ok { color: var(--ok); }
 .form-msg.err { color: var(--err); }

@@ -22,7 +22,7 @@
       <span id="tier-badge" class="tier-badge hidden"></span>
       <button id="notify-btn" class="ghost">{{ strings['enable_notifications'] }}</button>
       <a class="ghost" href="?lang={{ 'en' if lang == 'ar' else 'ar' }}">{{ 'EN' if lang == 'ar' else 'عربي' }}</a>
-      {% if client %}
+      {% if user %}
         <button id="logout-btn" class="primary">{{ strings['logout'] }}</button>
       {% else %}
         <button id="login-btn" class="primary">{{ strings['login'] }}</button>
@@ -34,7 +34,9 @@
     <button class="tab active" data-tab="catalog">{{ strings['catalog'] }}</button>
     <button class="tab" data-tab="offers">{{ strings['offers'] }}</button>
     <button class="tab" data-tab="orders">{{ strings['orders'] }}</button>
-    <button class="tab" data-tab="vendor">{{ strings['become_vendor'] }}</button>
+    <button class="tab" data-tab="team" id="tab-team" {% if not (user and user.role == 'owner') %}hidden{% endif %}>{{ strings['team'] }}</button>
+    <button class="tab" data-tab="vendor">{{ strings['become_distributor'] }}</button>
+    <button class="tab" data-tab="help">{{ strings['help'] }}</button>
   </nav>
 
   <main>
@@ -50,9 +52,48 @@
       <div id="orders-list"></div>
     </section>
 
+    <section id="team" class="panel">
+      <div class="card">
+        <h2>{{ strings['team'] }}</h2>
+        <p class="tagline">{{ strings['team_desc'] }}</p>
+        <div id="team-list"></div>
+      </div>
+      <form id="invite-form" class="card form">
+        <h3>{{ strings['add_user'] }}</h3>
+        <label>{{ strings['name'] }}<input name="name" required></label>
+        <label>{{ strings['phone'] }}<input name="phone" placeholder="+9627..." required></label>
+        <label>{{ strings['role'] }}
+          <select name="role">
+            <option value="buyer">{{ strings['role_buyer'] }}</option>
+            <option value="viewer">{{ strings['role_viewer'] }}</option>
+          </select>
+        </label>
+        <button class="primary" type="submit">{{ strings['add_user'] }}</button>
+        <p class="form-msg" id="invite-msg"></p>
+      </form>
+    </section>
+
+    <section id="help" class="panel">
+      <div class="card">
+        <h2>{{ strings['help_title'] }}</h2>
+        {% for item in faq %}
+        <details class="faq">
+          <summary>{{ item.q_ar if lang == 'ar' else item.q_en }}</summary>
+          <p>{{ item.a_ar if lang == 'ar' else item.a_en }}</p>
+        </details>
+        {% endfor %}
+      </div>
+      <div class="card">
+        <h2>{{ strings['contact_us'] }}</h2>
+        <p>☎ <a href="tel:+96264059090">{{ contact.phone }}</a></p>
+        <p>✉ <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
+        <p>🌐 <a href="{{ contact.website }}" target="_blank" rel="noopener">{{ contact.website }}</a></p>
+      </div>
+    </section>
+
     <section id="vendor" class="panel">
       <form id="vendor-form" class="card form" enctype="multipart/form-data">
-        <h2>{{ strings['become_vendor'] }}</h2>
+        <h2>{{ strings['become_distributor'] }}</h2>
         <label>{{ strings['business_name'] }}<input name="business_name" required></label>
         <label>{{ strings['contact_name'] }}<input name="contact_name" required></label>
         <label>{{ strings['phone'] }}<input name="phone" placeholder="+9627..." required></label>

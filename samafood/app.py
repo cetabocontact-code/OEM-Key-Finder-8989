@@ -13,7 +13,6 @@ from typing import Any
 
 from flask import (
     Flask,
-    abort,
     g,
     jsonify,
     redirect,
@@ -25,7 +24,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 from . import db, push
-from .i18n import DEFAULT_LANG, STRINGS, normalize_lang, t
+from .i18n import CONTACT, DEFAULT_LANG, FAQ, STRINGS, normalize_lang, t
 
 OTP_TTL_MINUTES = 5
 OTP_MAX_ATTEMPTS = 5
@@ -33,6 +32,19 @@ PHONE_RE = re.compile(r"^\+?[0-9]{7,15}$")
 ALLOWED_DOC_EXT = {".pdf", ".png", ".jpg", ".jpeg"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 UPLOAD_DIR = Path(os.environ.get("SAMA_UPLOAD_DIR", db.DB_PATH.parent / "uploads"))
+ROLES = ("owner", "buyer", "viewer")
+ORDERING_ROLES = ("owner", "buyer")
+
+USER_QUERY = """
+SELECT u.id AS user_id, u.name AS user_name, u.role AS role, u.status AS user_status,
+       b.id AS business_id, b.name_en AS b_name_en, b.name_ar AS b_name_ar,
+       b.status AS b_status, b.yearly_spend AS yearly_spend,
+       tr.discount_pct AS discount_pct, tr.name_en AS tier_en, tr.name_ar AS tier_ar
+FROM users u
+JOIN businesses b ON b.id = u.business_id
+LEFT JOIN tiers tr ON tr.id = b.tier_id
+WHERE u.id = ?
+"""
 
 
 def create_app() -> Flask:
@@ -52,30 +64,43 @@ def create_app() -> Flask:
             session["lang"] = normalize_lang(request.args.get("lang"))
         g.lang = current_lang()
 
-    def current_client() -> dict[str, Any] | None:
-        client_id = session.get("client_id")
-        if not client_id:
+    def current_user() -> dict[str, Any] | None:
+        user_id = session.get("user_id")
+        if not user_id:
             return None
         conn = db.get_db()
         try:
-            row = conn.execute(
-                """SELECT c.*, tr.discount_pct, tr.name_en AS tier_en, tr.name_ar AS tier_ar
-                   FROM clients c LEFT JOIN tiers tr ON tr.id = c.tier_id
-                   WHERE c.id = ?""",
-                (client_id,),
-            ).fetchone()
+            row = conn.execute(USER_QUERY, (user_id,)).fetchone()
         finally:
             conn.close()
-        return dict(row) if row else None
+        if not row or row["user_status"] != "active" or row["b_status"] != "approved":
+            return None
+        return dict(row)
 
     def login_required(view):
         @wraps(view)
         def wrapped(*args, **kwargs):
-            if not current_client():
+            if not current_user():
                 return jsonify({"error": "auth_required"}), 401
             return view(*args, **kwargs)
 
         return wrapped
+
+    def role_required(*roles):
+        def deco(view):
+            @wraps(view)
+            def wrapped(*args, **kwargs):
+                user = current_user()
+                if not user:
+                    return jsonify({"error": "auth_required"}), 401
+                if user["role"] not in roles:
+                    return jsonify({"error": "forbidden", "need_role": list(roles)}), 403
+                g.user = user
+                return view(*args, **kwargs)
+
+            return wrapped
+
+        return deco
 
     def admin_required(view):
         @wraps(view)
@@ -91,15 +116,20 @@ def create_app() -> Flask:
     def price_for(base_price: float, discount_pct: float) -> float:
         return round(base_price * (1 - (discount_pct or 0) / 100), 3)
 
+    def localized(row: dict[str, Any], field: str) -> str:
+        return row[f"{field}_ar"] if g.lang == "ar" else row[f"{field}_en"]
+
     # ---- pages ---------------------------------------------------------
     @app.get("/")
     def home():
-        client = current_client()
+        user = current_user()
         return render_template(
             "index.html",
             lang=g.lang,
             strings={k: t(k, g.lang) for k in STRINGS},
-            client=client,
+            user=user,
+            faq=FAQ,
+            contact=CONTACT,
             vapid_public_key=push.public_key(),
         )
 
@@ -130,12 +160,17 @@ def create_app() -> Flask:
             return jsonify({"error": "invalid_phone"}), 400
         conn = db.get_db()
         try:
-            client = conn.execute(
-                "SELECT id, status FROM clients WHERE phone = ?", (phone,)
+            user = conn.execute(
+                """SELECT u.id, u.status AS user_status, b.status AS b_status
+                   FROM users u JOIN businesses b ON b.id = u.business_id
+                   WHERE u.phone = ?""",
+                (phone,),
             ).fetchone()
-            if not client:
+            if not user:
                 return jsonify({"error": "not_registered", "can_apply": True}), 404
-            if client["status"] != "approved":
+            if user["user_status"] != "active":
+                return jsonify({"error": "user_disabled"}), 403
+            if user["b_status"] != "approved":
                 return jsonify({"error": "not_approved"}), 403
             code = f"{secrets.randbelow(1_000_000):06d}"
             expires = (datetime.now(timezone.utc) + timedelta(minutes=OTP_TTL_MINUTES)).isoformat()
@@ -150,8 +185,7 @@ def create_app() -> Flask:
         delivered = _send_sms(phone, code)
         payload: dict[str, Any] = {"ok": True, "sms_delivered": delivered}
         if not delivered:
-            # Dev mode: no SMS provider configured, surface code so the flow is testable.
-            payload["dev_code"] = code
+            payload["dev_code"] = code  # Dev mode: no SMS gateway wired yet.
         return jsonify(payload)
 
     @app.post("/api/auth/verify-otp")
@@ -172,31 +206,35 @@ def create_app() -> Flask:
                 conn.execute("UPDATE otp_codes SET attempts = attempts + 1 WHERE phone = ?", (phone,))
                 conn.commit()
                 return jsonify({"error": "wrong_code"}), 400
-            client = conn.execute("SELECT id FROM clients WHERE phone = ?", (phone,)).fetchone()
+            user = conn.execute("SELECT id FROM users WHERE phone = ?", (phone,)).fetchone()
             conn.execute("DELETE FROM otp_codes WHERE phone = ?", (phone,))
             conn.commit()
         finally:
             conn.close()
-        session["client_id"] = client["id"]
+        session["user_id"] = user["id"]
         return jsonify({"ok": True})
 
     @app.post("/api/auth/logout")
     def logout():
-        session.pop("client_id", None)
+        session.pop("user_id", None)
         return jsonify({"ok": True})
 
     @app.get("/api/me")
     def me():
-        client = current_client()
-        if not client:
-            return jsonify({"client": None})
+        user = current_user()
+        if not user:
+            return jsonify({"user": None})
         return jsonify(
             {
-                "client": {
-                    "name": client["name_ar"] if g.lang == "ar" else client["name_en"],
-                    "tier": client["tier_ar"] if g.lang == "ar" else client["tier_en"],
-                    "discount_pct": client["discount_pct"] or 0,
-                    "yearly_spend": client["yearly_spend"],
+                "user": {
+                    "name": user["user_name"],
+                    "role": user["role"],
+                    "business": user["b_name_ar"] if g.lang == "ar" else user["b_name_en"],
+                    "tier": user["tier_ar"] if g.lang == "ar" else user["tier_en"],
+                    "discount_pct": user["discount_pct"] or 0,
+                    "yearly_spend": user["yearly_spend"],
+                    "can_order": user["role"] in ORDERING_ROLES,
+                    "can_manage_team": user["role"] == "owner",
                 }
             }
         )
@@ -204,29 +242,28 @@ def create_app() -> Flask:
     # ---- catalog & offers ---------------------------------------------
     @app.get("/api/catalog")
     def catalog():
-        client = current_client()
-        discount = (client or {}).get("discount_pct") or 0
+        user = current_user()
+        discount = (user or {}).get("discount_pct") or 0
         conn = db.get_db()
         try:
             rows = conn.execute("SELECT * FROM products ORDER BY category, name_en").fetchall()
         finally:
             conn.close()
-        products = []
-        for r in rows:
-            products.append(
-                {
-                    "sku": r["sku"],
-                    "name": r["name_ar"] if g.lang == "ar" else r["name_en"],
-                    "category": r["category"],
-                    "size": r["size"],
-                    "base_price": r["base_price"],
-                    "your_price": price_for(r["base_price"], discount) if client else None,
-                    "min_order": r["min_order"],
-                    "stock": r["stock"],
-                    "image_url": r["image_url"],
-                }
-            )
-        return jsonify({"products": products, "discount_pct": discount, "logged_in": bool(client)})
+        products = [
+            {
+                "sku": r["sku"],
+                "name": localized(r, "name"),
+                "category": r["category"],
+                "size": r["size"],
+                "base_price": r["base_price"],
+                "your_price": price_for(r["base_price"], discount) if user else None,
+                "min_order": r["min_order"],
+                "stock": r["stock"],
+                "image_url": r["image_url"],
+            }
+            for r in rows
+        ]
+        return jsonify({"products": products, "discount_pct": discount, "logged_in": bool(user)})
 
     @app.get("/api/offers")
     def offers():
@@ -238,11 +275,7 @@ def create_app() -> Flask:
         return jsonify(
             {
                 "offers": [
-                    {
-                        "title": r["title_ar"] if g.lang == "ar" else r["title_en"],
-                        "body": r["body_ar"] if g.lang == "ar" else r["body_en"],
-                        "kind": r["kind"],
-                    }
+                    {"title": localized(r, "title"), "body": localized(r, "body"), "kind": r["kind"]}
                     for r in rows
                 ]
             }
@@ -250,16 +283,16 @@ def create_app() -> Flask:
 
     # ---- orders --------------------------------------------------------
     @app.post("/api/orders")
-    @login_required
+    @role_required(*ORDERING_ROLES)
     def create_order():
-        client = current_client()
+        user = g.user
         items_in = (request.json or {}).get("items", [])
         note = (request.json or {}).get("note", "")[:500]
         if not isinstance(items_in, list) or not items_in:
             return jsonify({"error": "empty_order"}), 400
         conn = db.get_db()
         try:
-            discount = client["discount_pct"] or 0
+            discount = user["discount_pct"] or 0
             line_items = []
             subtotal = 0.0
             for item in items_in:
@@ -272,8 +305,7 @@ def create_app() -> Flask:
                     return jsonify({"error": "unknown_sku", "sku": sku}), 400
                 if qty < prod["min_order"]:
                     return jsonify({"error": "below_min_order", "sku": sku, "min_order": prod["min_order"]}), 400
-                line_total = prod["base_price"] * qty
-                subtotal += line_total
+                subtotal += prod["base_price"] * qty
                 line_items.append(
                     {"sku": sku, "name_en": prod["name_en"], "name_ar": prod["name_ar"], "qty": qty, "base_price": prod["base_price"]}
                 )
@@ -281,9 +313,9 @@ def create_app() -> Flask:
                 return jsonify({"error": "empty_order"}), 400
             total = round(subtotal * (1 - discount / 100), 3)
             order_id = conn.execute(
-                """INSERT INTO orders (client_id, items_json, subtotal, discount_pct, total, status, note, created_at)
-                   VALUES (?,?,?,?,?,'submitted',?,?)""",
-                (client["id"], json.dumps(line_items, ensure_ascii=False), round(subtotal, 3), discount, total, note, db.utc_now()),
+                """INSERT INTO orders (business_id, user_id, items_json, subtotal, discount_pct, total, status, note, created_at)
+                   VALUES (?,?,?,?,?,?,'submitted',?,?)""",
+                (user["business_id"], user["user_id"], json.dumps(line_items, ensure_ascii=False), round(subtotal, 3), discount, total, note, db.utc_now()),
             ).lastrowid
             conn.commit()
         finally:
@@ -293,31 +325,98 @@ def create_app() -> Flask:
     @app.get("/api/orders")
     @login_required
     def list_orders():
-        client = current_client()
+        user = current_user()
         conn = db.get_db()
         try:
             rows = conn.execute(
-                "SELECT id, items_json, subtotal, discount_pct, total, status, created_at FROM orders WHERE client_id = ? ORDER BY id DESC",
-                (client["id"],),
+                """SELECT o.id, o.items_json, o.subtotal, o.discount_pct, o.total, o.status, o.created_at,
+                          u.name AS placed_by
+                   FROM orders o LEFT JOIN users u ON u.id = o.user_id
+                   WHERE o.business_id = ? ORDER BY o.id DESC""",
+                (user["business_id"],),
             ).fetchall()
         finally:
             conn.close()
-        orders = []
-        for r in rows:
-            orders.append(
-                {
-                    "id": r["id"],
-                    "items": json.loads(r["items_json"]),
-                    "subtotal": r["subtotal"],
-                    "discount_pct": r["discount_pct"],
-                    "total": r["total"],
-                    "status": r["status"],
-                    "created_at": r["created_at"],
-                }
-            )
+        orders = [
+            {
+                "id": r["id"],
+                "items": json.loads(r["items_json"]),
+                "subtotal": r["subtotal"],
+                "discount_pct": r["discount_pct"],
+                "total": r["total"],
+                "status": r["status"],
+                "placed_by": r["placed_by"],
+                "created_at": r["created_at"],
+            }
+            for r in rows
+        ]
         return jsonify({"orders": orders})
 
-    # ---- vendor application -------------------------------------------
+    # ---- team (authorized users under a business) ----------------------
+    @app.get("/api/team")
+    @role_required("owner")
+    def list_team():
+        conn = db.get_db()
+        try:
+            rows = conn.execute(
+                "SELECT id, name, phone, role, status, created_at FROM users WHERE business_id = ? ORDER BY id",
+                (g.user["business_id"],),
+            ).fetchall()
+        finally:
+            conn.close()
+        return jsonify({"team": db.rows_to_dicts(rows), "me": g.user["user_id"]})
+
+    @app.post("/api/team/invite")
+    @role_required("owner")
+    def invite_user():
+        data = request.json or {}
+        name = data.get("name", "").strip()
+        phone = data.get("phone", "").strip()
+        role = data.get("role", "buyer")
+        if not name or not PHONE_RE.match(phone):
+            return jsonify({"error": "invalid_input"}), 400
+        if role not in ("buyer", "viewer"):
+            return jsonify({"error": "invalid_role"}), 400
+        conn = db.get_db()
+        try:
+            if conn.execute("SELECT 1 FROM users WHERE phone = ?", (phone,)).fetchone():
+                return jsonify({"error": "phone_taken"}), 409
+            conn.execute(
+                "INSERT INTO users (business_id, name, phone, role, status, created_at) VALUES (?,?,?,?,'active',?)",
+                (g.user["business_id"], name, phone, role, db.utc_now()),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        return jsonify({"ok": True})
+
+    @app.post("/api/team/<int:user_id>/update")
+    @role_required("owner")
+    def update_user(user_id: int):
+        data = request.json or {}
+        if user_id == g.user["user_id"]:
+            return jsonify({"error": "cannot_modify_self"}), 400
+        conn = db.get_db()
+        try:
+            target = conn.execute(
+                "SELECT id FROM users WHERE id = ? AND business_id = ?", (user_id, g.user["business_id"])
+            ).fetchone()
+            if not target:
+                return jsonify({"error": "not_found"}), 404
+            if "role" in data:
+                if data["role"] not in ("buyer", "viewer"):
+                    return jsonify({"error": "invalid_role"}), 400
+                conn.execute("UPDATE users SET role = ? WHERE id = ?", (data["role"], user_id))
+            if "status" in data:
+                if data["status"] not in ("active", "disabled"):
+                    return jsonify({"error": "invalid_status"}), 400
+                conn.execute("UPDATE users SET status = ? WHERE id = ?", (data["status"], user_id))
+            conn.commit()
+        finally:
+            conn.close()
+        return jsonify({"ok": True})
+
+    # ---- vendor / distributor application ------------------------------
     @app.post("/api/vendor-application")
     def vendor_application():
         form = request.form
@@ -360,14 +459,14 @@ def create_app() -> Flask:
         endpoint = sub.get("endpoint")
         if not endpoint:
             return jsonify({"error": "invalid_subscription"}), 400
-        client = current_client()
+        user = current_user()
         conn = db.get_db()
         try:
             conn.execute(
-                """INSERT INTO push_subscriptions (client_id, endpoint, subscription_json, created_at)
+                """INSERT INTO push_subscriptions (user_id, endpoint, subscription_json, created_at)
                    VALUES (?,?,?,?)
                    ON CONFLICT(endpoint) DO UPDATE SET subscription_json=excluded.subscription_json""",
-                (client["id"] if client else None, endpoint, json.dumps(sub), db.utc_now()),
+                (user["user_id"] if user else None, endpoint, json.dumps(sub), db.utc_now()),
             )
             conn.commit()
         finally:
@@ -398,25 +497,36 @@ def create_app() -> Flask:
         try:
             orders = db.rows_to_dicts(
                 conn.execute(
-                    """SELECT o.id, o.total, o.status, o.created_at, c.name_en AS client
-                       FROM orders o JOIN clients c ON c.id = o.client_id ORDER BY o.id DESC LIMIT 50"""
+                    """SELECT o.id, o.total, o.status, o.created_at, b.name_en AS business, u.name AS placed_by
+                       FROM orders o JOIN businesses b ON b.id = o.business_id
+                       LEFT JOIN users u ON u.id = o.user_id ORDER BY o.id DESC LIMIT 50"""
                 ).fetchall()
             )
             apps = db.rows_to_dicts(
-                conn.execute("SELECT id, business_name, contact_name, phone, status, documents_json, created_at FROM vendor_applications ORDER BY id DESC LIMIT 50").fetchall()
+                conn.execute(
+                    "SELECT id, business_name, contact_name, phone, status, documents_json, created_at FROM vendor_applications ORDER BY id DESC LIMIT 50"
+                ).fetchall()
             )
             subs = conn.execute("SELECT COUNT(*) FROM push_subscriptions").fetchone()[0]
+            businesses = conn.execute("SELECT COUNT(*) FROM businesses").fetchone()[0]
+            users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
         finally:
             conn.close()
         for a in apps:
             a["documents"] = json.loads(a.pop("documents_json"))
-        source = "seed/manual"
         from .integrations import active_source
 
         live = active_source()
-        if live:
-            source = live.name
-        return jsonify({"orders": orders, "applications": apps, "subscribers": subs, "product_source": source})
+        return jsonify(
+            {
+                "orders": orders,
+                "applications": apps,
+                "subscribers": subs,
+                "businesses": businesses,
+                "users": users,
+                "product_source": live.name if live else "seed/manual",
+            }
+        )
 
     @app.post("/api/admin/notify")
     @admin_required
@@ -432,10 +542,7 @@ def create_app() -> Flask:
             subs = conn.execute("SELECT subscription_json FROM push_subscriptions").fetchall()
         finally:
             conn.close()
-        sent = 0
-        for row in subs:
-            if push.send(json.loads(row["subscription_json"]), title, body, target_url):
-                sent += 1
+        sent = sum(1 for row in subs if push.send(json.loads(row["subscription_json"]), title, body, target_url))
         return jsonify({"ok": True, "sent": sent, "total": len(subs)})
 
     @app.post("/api/admin/sync")

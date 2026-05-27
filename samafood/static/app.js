@@ -5,6 +5,8 @@ const AR = LANG === "ar";
 const cart = new Map(); // sku -> {name, base, your, qty, min}
 let discountPct = 0;
 let loggedIn = false;
+let canOrder = false;
+let myRole = null;
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -37,6 +39,7 @@ $$(".tab").forEach((btn) => {
     btn.classList.add("active");
     $("#" + btn.dataset.tab).classList.add("active");
     if (btn.dataset.tab === "orders") loadOrders();
+    if (btn.dataset.tab === "team") loadTeam();
   });
 });
 
@@ -44,15 +47,65 @@ $$(".tab").forEach((btn) => {
 async function loadMe() {
   const { data } = await api("/api/me");
   const badge = $("#tier-badge");
-  if (data.client) {
+  if (data.user) {
     loggedIn = true;
-    discountPct = data.client.discount_pct || 0;
-    badge.textContent = `${data.client.tier} · ${AR ? "خصم" : "discount"} ${discountPct}%`;
+    canOrder = data.user.can_order;
+    myRole = data.user.role;
+    discountPct = data.user.discount_pct || 0;
+    badge.textContent = `${data.user.business} · ${data.user.tier} ${discountPct}% · ${data.user.name}`;
     badge.classList.remove("hidden");
+    const teamTab = $("#tab-team");
+    if (teamTab) teamTab.hidden = !data.user.can_manage_team;
   } else {
     loggedIn = false;
+    canOrder = false;
     badge.classList.add("hidden");
   }
+}
+
+// ---- team management (owner) ----
+async function loadTeam() {
+  const { ok, data } = await api("/api/team");
+  const box = $("#team-list");
+  if (!box) return;
+  if (!ok) { box.innerHTML = `<p>${AR ? "للمالك فقط." : "Owner only."}</p>`; return; }
+  const roleLabel = (r) => ({ owner: AR ? "مالك" : "Owner", buyer: AR ? "مشترٍ" : "Buyer", viewer: AR ? "مشاهد" : "Viewer" }[r] || r);
+  box.innerHTML = "";
+  data.team.forEach((u) => {
+    const isMe = u.id === data.me;
+    const row = document.createElement("div");
+    row.className = "order";
+    const toggle = u.status === "active" ? (AR ? "تعطيل" : "Disable") : (AR ? "تفعيل" : "Enable");
+    row.innerHTML = `<strong>${u.name}</strong> · ${u.phone}
+      <span class="meta">(${roleLabel(u.role)} · ${u.status})</span>`;
+    if (!isMe && u.role !== "owner") {
+      const btn = document.createElement("button");
+      btn.className = "ghost";
+      btn.style.marginInlineStart = "0.5rem";
+      btn.textContent = toggle;
+      btn.addEventListener("click", async () => {
+        await api(`/api/team/${u.id}/update`, { method: "POST", body: JSON.stringify({ status: u.status === "active" ? "disabled" : "active" }) });
+        loadTeam();
+      });
+      row.appendChild(btn);
+    }
+    box.appendChild(row);
+  });
+}
+
+const inviteForm = $("#invite-form");
+if (inviteForm) {
+  inviteForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const msg = $("#invite-msg");
+    const { ok, data } = await api("/api/team/invite", {
+      method: "POST",
+      body: JSON.stringify({ name: fd.get("name"), phone: fd.get("phone"), role: fd.get("role") }),
+    });
+    if (ok) { msg.className = "form-msg ok"; msg.textContent = AR ? "تمت الإضافة." : "User added."; e.target.reset(); loadTeam(); }
+    else { msg.className = "form-msg err"; msg.textContent = data.error === "phone_taken" ? (AR ? "الرقم مستخدم مسبقاً." : "Phone already in use.") : (data.error || "error"); }
+  });
 }
 
 // ---- catalog ----
@@ -137,6 +190,11 @@ $("#place-order").addEventListener("click", async () => {
     openLogin();
     return;
   }
+  if (!canOrder) {
+    msg.textContent = AR ? "حسابك للاطلاع فقط ولا يمكنه تقديم الطلبات." : "Your account is view-only and cannot place orders.";
+    msg.className = "form-msg err";
+    return;
+  }
   const items = Array.from(cart.entries()).map(([sku, it]) => ({ sku, qty: it.qty }));
   const { ok, data } = await api("/api/orders", { method: "POST", body: JSON.stringify({ items }) });
   if (ok) {
@@ -176,7 +234,8 @@ async function loadOrders() {
     const lines = o.items.map((i) => `${AR ? i.name_ar : i.name_en} ×${i.qty}`).join("، ");
     const el = document.createElement("div");
     el.className = "order";
-    el.innerHTML = `<strong>#${o.id}</strong> — ${money(o.total)} <span class="meta">(${o.status})</span><div class="meta">${o.created_at}</div><div>${lines}</div>`;
+    const by = o.placed_by ? ` · ${AR ? "بواسطة" : "by"} ${o.placed_by}` : "";
+    el.innerHTML = `<strong>#${o.id}</strong> — ${money(o.total)} <span class="meta">(${o.status}${by})</span><div class="meta">${o.created_at}</div><div>${lines}</div>`;
     list.appendChild(el);
   });
 }

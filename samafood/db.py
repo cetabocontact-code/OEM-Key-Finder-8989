@@ -21,15 +21,25 @@ CREATE TABLE IF NOT EXISTS tiers (
     discount_pct REAL NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS clients (
+CREATE TABLE IF NOT EXISTS businesses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name_en TEXT NOT NULL,
     name_ar TEXT NOT NULL,
-    phone TEXT NOT NULL UNIQUE,
+    phone TEXT NOT NULL,
     client_type TEXT NOT NULL DEFAULT 'retail',
     yearly_spend REAL NOT NULL DEFAULT 0,
     tier_id INTEGER REFERENCES tiers(id),
     status TEXT NOT NULL DEFAULT 'approved',
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    business_id INTEGER NOT NULL REFERENCES businesses(id),
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL DEFAULT 'buyer',
+    status TEXT NOT NULL DEFAULT 'active',
     created_at TEXT NOT NULL
 );
 
@@ -60,7 +70,8 @@ CREATE TABLE IF NOT EXISTS offers (
 
 CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    client_id INTEGER NOT NULL REFERENCES clients(id),
+    business_id INTEGER NOT NULL REFERENCES businesses(id),
+    user_id INTEGER REFERENCES users(id),
     items_json TEXT NOT NULL,
     subtotal REAL NOT NULL,
     discount_pct REAL NOT NULL,
@@ -90,7 +101,7 @@ CREATE TABLE IF NOT EXISTS otp_codes (
 
 CREATE TABLE IF NOT EXISTS push_subscriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    client_id INTEGER REFERENCES clients(id),
+    user_id INTEGER REFERENCES users(id),
     endpoint TEXT NOT NULL UNIQUE,
     subscription_json TEXT NOT NULL,
     created_at TEXT NOT NULL
@@ -152,13 +163,18 @@ def _seed(conn: sqlite3.Connection) -> None:
             (offer["title_en"], offer["title_ar"], offer["body_en"], offer["body_ar"], offer["kind"], utc_now()),
         )
 
-    demo = data["demo_client"]
+    demo = data["demo_business"]
     tier_id = tier_for_spend(conn, demo["yearly_spend"])
-    conn.execute(
-        """INSERT INTO clients (name_en, name_ar, phone, client_type, yearly_spend, tier_id, status, created_at)
+    business_id = conn.execute(
+        """INSERT INTO businesses (name_en, name_ar, phone, client_type, yearly_spend, tier_id, status, created_at)
            VALUES (?,?,?,?,?,?,'approved',?)""",
         (demo["name_en"], demo["name_ar"], demo["phone"], demo["client_type"], demo["yearly_spend"], tier_id, utc_now()),
-    )
+    ).lastrowid
+    for user in demo["users"]:
+        conn.execute(
+            "INSERT INTO users (business_id, name, phone, role, status, created_at) VALUES (?,?,?,?,'active',?)",
+            (business_id, user["name"], user["phone"], user["role"], utc_now()),
+        )
     conn.commit()
 
 
