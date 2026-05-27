@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Sama">
+  <rect width="192" height="192" rx="36" fill="#ffffff"/>
+  <g transform="translate(96,118)">
+    <path transform="rotate(-40)" d="M0,6 C-20,-34 -14,-62 0,-78 C14,-62 20,-34 0,6 Z" fill="#13388c"/>
+    <path transform="rotate(-2)" d="M0,6 C-18,-40 -12,-72 0,-90 C14,-72 20,-40 0,6 Z" fill="#e8232a"/>
+    <path transform="rotate(46)" d="M0,6 C-22,-36 -16,-66 0,-84 C17,-66 25,-34 0,6 Z" fill="#13388c"/>
+    <circle cx="-32" cy="22" r="13" fill="#13388c"/>
+  </g>
+</svg>

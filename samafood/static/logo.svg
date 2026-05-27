@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 120" role="img" aria-label="Sama">
+  <!-- splash mark -->
+  <g transform="translate(58,58)">
+    <path transform="rotate(-40)" d="M0,4 C-13,-22 -9,-40 0,-50 C9,-40 13,-22 0,4 Z" fill="#13388c"/>
+    <path transform="rotate(-2)" d="M0,4 C-12,-26 -8,-46 0,-58 C9,-46 13,-26 0,4 Z" fill="#e8232a"/>
+    <path transform="rotate(46)" d="M0,4 C-14,-24 -10,-42 0,-54 C11,-42 16,-22 0,4 Z" fill="#13388c"/>
+    <circle cx="-20" cy="14" r="8" fill="#13388c"/>
+  </g>
+  <!-- wordmark -->
+  <text x="108" y="82" font-family="Verdana, Tahoma, sans-serif" font-size="62" font-weight="800" fill="#13388c" letter-spacing="-2">sama</text>
+</svg>

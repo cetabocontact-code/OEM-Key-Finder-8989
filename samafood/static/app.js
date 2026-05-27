@@ -20,6 +20,15 @@ async function api(path, opts = {}) {
 
 const money = (n) => (n == null ? "-" : Number(n).toFixed(2) + (AR ? " د.أ" : " JOD"));
 
+function bottleSvg() {
+  return `<svg viewBox="0 0 60 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="24" y="2" width="12" height="9" rx="2" fill="#13388c"/>
+    <path d="M22 12 h16 v8 l4 8 v108 a6 6 0 0 1-6 6 H24 a6 6 0 0 1-6-6 V28 l4-8 z" fill="#dceafc" stroke="#b9d2f3"/>
+    <rect x="18" y="78" width="24" height="40" rx="3" fill="#13388c"/>
+    <text x="30" y="103" text-anchor="middle" font-family="Verdana,sans-serif" font-size="11" font-weight="800" fill="#fff">sama</text>
+  </svg>`;
+}
+
 // ---- tabs ----
 $$(".tab").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -56,7 +65,11 @@ async function loadCatalog() {
     const showYour = p.your_price != null;
     const card = document.createElement("div");
     card.className = "card product";
+    const imgHtml = p.image_url
+      ? `<img class="product-img" src="${p.image_url}" alt="${p.name}" loading="lazy">`
+      : `<div class="product-img placeholder">${bottleSvg()}</div>`;
     card.innerHTML = `
+      ${imgHtml}
       <div class="cat">${p.category}</div>
       <h3>${p.name}</h3>
       <div class="size">${p.size}</div>
