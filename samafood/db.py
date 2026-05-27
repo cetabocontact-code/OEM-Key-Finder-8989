@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS users (
     phone TEXT NOT NULL UNIQUE,
     role TEXT NOT NULL DEFAULT 'buyer',
     status TEXT NOT NULL DEFAULT 'active',
+    last_login_at TEXT,
     created_at TEXT NOT NULL
 );
 
@@ -114,6 +115,15 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
     endpoint TEXT NOT NULL UNIQUE,
     subscription_json TEXT NOT NULL,
     created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS notifications_log (
+    id {pk},
+    business_id INTEGER REFERENCES businesses(id),
+    user_id INTEGER REFERENCES users(id),
+    kind TEXT NOT NULL,
+    ref TEXT NOT NULL DEFAULT '',
+    sent_at TEXT NOT NULL
 );
 """
 
@@ -245,6 +255,25 @@ def tier_for_spend(conn: Conn, spend: float) -> int | None:
         (spend, spend),
     ).fetchone()
     return row["id"] if row else None
+
+
+def tier_progress(conn: Conn, spend: float) -> dict[str, Any]:
+    """Locate the current tier band for `spend` and the gap to the next tier."""
+    tiers = rows_to_dicts(conn.execute("SELECT * FROM tiers ORDER BY min_spend").fetchall())
+    current = next(
+        (t for t in tiers if t["min_spend"] <= spend and (t["max_spend"] is None or spend < t["max_spend"])),
+        None,
+    )
+    upcoming = next((t for t in tiers if t["min_spend"] > spend), None)
+    band_start = current["min_spend"] if current else 0
+    if upcoming:
+        band_end = upcoming["min_spend"]
+        progress = round((spend - band_start) / (band_end - band_start) * 100) if band_end > band_start else 100
+        progress = max(0, min(100, progress))
+        amount_to_next = round(band_end - spend, 2)
+    else:
+        progress, amount_to_next = 100, 0.0
+    return {"current": current, "upcoming": upcoming, "amount_to_next": amount_to_next, "progress_pct": progress}
 
 
 def rows_to_dicts(rows: Any) -> list[dict[str, Any]]:

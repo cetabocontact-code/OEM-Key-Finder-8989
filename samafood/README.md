@@ -47,10 +47,22 @@ shown on screen.
 | `SAMA_ADMIN_PASSWORD` | Password for `/admin`. **Required** to use admin. |
 | `SAMA_DB_PATH` | SQLite path for local dev (defaults to `data/samafood.db`). Ignored when `DATABASE_URL` is set. |
 | `SAMA_UPLOAD_DIR` | Where vendor documents are stored. |
-| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_CONTACT` | Web Push keys. Auto-generated if unset (set them in prod so subscriptions survive restarts). |
+| `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_CONTACT` | Web Push keys. Auto-generated if unset, **but must be set in prod** so the web service and the notify cron sign with the same keys (otherwise scheduled pushes won't deliver). |
 | `SAP_SL_URL` / `SAP_SL_COMPANYDB` / `SAP_SL_USER` / `SAP_SL_PASSWORD` | SAP Business One Service Layer — enables catalog sync. |
 | `OLIVE_API_URL` / `OLIVE_API_KEY` | Olive API — enables catalog sync (takes priority over SAP). |
 | SMS gateway creds | Not yet wired — see `_send_sms()` in `app.py`. |
+
+## Scheduled notifications
+A daily Render cron worker (`python -m samafood.notify run`, defined in
+`render.yaml`) sends:
+- **Tier nudges** — as a business's purchasing year (its `created_at`
+  anniversary) approaches, it gets one push at the 90-, 60-, and 30-day marks
+  telling it how much more to spend to reach the next discount tier.
+- **Login refresh** — a user ~11 months idle is reminded to log in.
+
+Sends are idempotent (tracked in `notifications_log`), so re-runs don't repeat.
+Run `python -m samafood.notify run --dry-run` to preview, or trigger from the
+admin via `POST /api/admin/run-notifications`.
 
 ## Status of integrations
 - **Catalog/prices/stock**: seeded data until SAP B1 or Olive credentials are

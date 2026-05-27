@@ -21,3 +21,32 @@ services:
         fromDatabase:
           name: samafood-db
           property: connectionString
+      # Set these so the web service and cron worker sign push with the SAME
+      # VAPID keys. If unset, each process generates its own and delivery fails.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_CONTACT
+        value: mailto:ops@samafood.jo
+
+  - type: cron
+    name: samafood-notify
+    env: python
+    plan: free
+    schedule: "0 9 * * *"
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: python -m samafood.notify run
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        fromDatabase:
+          name: samafood-db
+          property: connectionString
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_CONTACT
+        value: mailto:ops@samafood.jo

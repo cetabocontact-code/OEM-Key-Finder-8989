@@ -207,6 +207,7 @@ def create_app() -> Flask:
                 conn.commit()
                 return jsonify({"error": "wrong_code"}), 400
             user = conn.execute("SELECT id FROM users WHERE phone = ?", (phone,)).fetchone()
+            conn.execute("UPDATE users SET last_login_at = ? WHERE id = ?", (db.utc_now(), user["id"]))
             conn.execute("DELETE FROM otp_codes WHERE phone = ?", (phone,))
             conn.commit()
         finally:
@@ -360,7 +361,7 @@ def create_app() -> Flask:
         spend = user["yearly_spend"] or 0
         conn = db.get_db()
         try:
-            tiers = db.rows_to_dicts(conn.execute("SELECT * FROM tiers ORDER BY min_spend").fetchall())
+            prog = db.tier_progress(conn, spend)
             agg = conn.execute(
                 "SELECT COUNT(*) AS n, COALESCE(SUM(total),0) AS spent FROM orders WHERE business_id = ?",
                 (user["business_id"],),
@@ -368,24 +369,12 @@ def create_app() -> Flask:
         finally:
             conn.close()
 
-        current = next(
-            (t for t in tiers if t["min_spend"] <= spend and (t["max_spend"] is None or spend < t["max_spend"])),
-            None,
+        upcoming = prog["upcoming"]
+        next_tier = (
+            {"name": (upcoming["name_ar"] if g.lang == "ar" else upcoming["name_en"]), "discount_pct": upcoming["discount_pct"]}
+            if upcoming
+            else None
         )
-        upcoming = next((t for t in tiers if t["min_spend"] > spend), None)
-        band_start = current["min_spend"] if current else 0
-        if upcoming:
-            band_end = upcoming["min_spend"]
-            progress = round((spend - band_start) / (band_end - band_start) * 100) if band_end > band_start else 100
-            progress = max(0, min(100, progress))
-            amount_to_next = round(band_end - spend, 2)
-            next_tier = {
-                "name": (upcoming["name_ar"] if g.lang == "ar" else upcoming["name_en"]),
-                "discount_pct": upcoming["discount_pct"],
-            }
-        else:
-            progress, amount_to_next, next_tier = 100, 0, None
-
         return jsonify(
             {
                 "business": user["b_name_ar"] if g.lang == "ar" else user["b_name_en"],
@@ -393,8 +382,8 @@ def create_app() -> Flask:
                 "discount_pct": user["discount_pct"] or 0,
                 "yearly_spend": spend,
                 "next_tier": next_tier,
-                "amount_to_next": amount_to_next,
-                "progress_pct": progress,
+                "amount_to_next": prog["amount_to_next"],
+                "progress_pct": prog["progress_pct"],
                 "orders_count": agg["n"],
                 "orders_total": round(agg["spent"], 2),
             }
@@ -537,6 +526,14 @@ def create_app() -> Flask:
     def admin_logout():
         session.pop("is_admin", None)
         return jsonify({"ok": True})
+
+    @app.post("/api/admin/run-notifications")
+    @admin_required
+    def admin_run_notifications():
+        from . import notify
+
+        dry_run = bool((request.json or {}).get("dry_run"))
+        return jsonify(notify.run(dry_run=dry_run))
 
     @app.get("/api/admin/overview")
     @admin_required

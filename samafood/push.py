@@ -55,7 +55,7 @@ def contact() -> str:
 
 def send(subscription: dict[str, Any], title: str, body: str, url: str = "/") -> bool:
     try:
-        from pywebpush import WebPushException, webpush
+        from pywebpush import webpush
     except ImportError:
         # pywebpush not installed in this environment; sending is unavailable.
         return False
@@ -68,5 +68,5 @@ def send(subscription: dict[str, Any], title: str, body: str, url: str = "/") ->
             vapid_claims={"sub": contact()},
         )
         return True
-    except WebPushException:
+    except Exception:  # noqa: BLE001 - best-effort: one bad subscription must not abort a batch
         return False
