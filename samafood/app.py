@@ -352,7 +352,55 @@ def create_app() -> Flask:
         ]
         return jsonify({"orders": orders})
 
-    # ---- team (authorized users under a business) ----------------------
+    # ---- dashboard -----------------------------------------------------
+    @app.get("/api/dashboard")
+    @login_required
+    def dashboard():
+        user = current_user()
+        spend = user["yearly_spend"] or 0
+        conn = db.get_db()
+        try:
+            tiers = db.rows_to_dicts(conn.execute("SELECT * FROM tiers ORDER BY min_spend").fetchall())
+            agg = conn.execute(
+                "SELECT COUNT(*) AS n, COALESCE(SUM(total),0) AS spent FROM orders WHERE business_id = ?",
+                (user["business_id"],),
+            ).fetchone()
+        finally:
+            conn.close()
+
+        current = next(
+            (t for t in tiers if t["min_spend"] <= spend and (t["max_spend"] is None or spend < t["max_spend"])),
+            None,
+        )
+        upcoming = next((t for t in tiers if t["min_spend"] > spend), None)
+        band_start = current["min_spend"] if current else 0
+        if upcoming:
+            band_end = upcoming["min_spend"]
+            progress = round((spend - band_start) / (band_end - band_start) * 100) if band_end > band_start else 100
+            progress = max(0, min(100, progress))
+            amount_to_next = round(band_end - spend, 2)
+            next_tier = {
+                "name": (upcoming["name_ar"] if g.lang == "ar" else upcoming["name_en"]),
+                "discount_pct": upcoming["discount_pct"],
+            }
+        else:
+            progress, amount_to_next, next_tier = 100, 0, None
+
+        return jsonify(
+            {
+                "business": user["b_name_ar"] if g.lang == "ar" else user["b_name_en"],
+                "tier": user["tier_ar"] if g.lang == "ar" else user["tier_en"],
+                "discount_pct": user["discount_pct"] or 0,
+                "yearly_spend": spend,
+                "next_tier": next_tier,
+                "amount_to_next": amount_to_next,
+                "progress_pct": progress,
+                "orders_count": agg["n"],
+                "orders_total": round(agg["spent"], 2),
+            }
+        )
+
+
     @app.get("/api/team")
     @role_required("owner")
     def list_team():

@@ -73,6 +73,19 @@ main { padding: 1.2rem; max-width: 1100px; margin: 0 auto; }
 .faq p { color: var(--text); margin: 0.5rem 0 0; }
 .card + .card { margin-top: 1rem; }
 .card a { color: var(--brand); }
+.dash-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.dash-head h2 { margin: 0; }
+.dash-discount { text-align: center; background: var(--brand); color: #fff; border-radius: 0.75rem; padding: 0.6rem 1rem; }
+.dash-discount span { display: block; font-size: 1.6rem; font-weight: 800; }
+.dash-discount small { opacity: 0.85; }
+.dash-progress-labels { display: flex; justify-content: space-between; font-weight: 600; color: var(--brand); margin-bottom: 0.4rem; }
+.progress { height: 14px; background: #e6edf5; border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #1c63d6, #13388c); border-radius: 999px; transition: width 0.5s ease; }
+.dash-next { margin: 0.6rem 0 0; color: var(--text); }
+.dash-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem; }
+.stat { text-align: center; }
+.stat-val { display: block; font-size: 1.3rem; font-weight: 800; color: var(--brand); }
+.stat small { color: #5b6b7b; }
 .form-msg { min-height: 1.2rem; font-size: 0.9rem; }
 .form-msg.ok { color: var(--ok); }
 .form-msg.err { color: var(--err); }

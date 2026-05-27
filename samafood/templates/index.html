@@ -31,6 +31,7 @@
   </header>
 
   <nav class="tabs">
+    <button class="tab" data-tab="dashboard" id="tab-dashboard" {% if not user %}hidden{% endif %}>{{ strings['dashboard'] }}</button>
     <button class="tab active" data-tab="catalog">{{ strings['catalog'] }}</button>
     <button class="tab" data-tab="offers">{{ strings['offers'] }}</button>
     <button class="tab" data-tab="orders">{{ strings['orders'] }}</button>
@@ -40,6 +41,29 @@
   </nav>
 
   <main>
+    <section id="dashboard" class="panel">
+      <div class="card dash-head">
+        <div>
+          <h2 id="dash-business"></h2>
+          <p class="tagline" id="dash-tier"></p>
+        </div>
+        <div class="dash-discount"><span id="dash-discount"></span><small>{{ strings['your_discount'] }}</small></div>
+      </div>
+      <div class="card">
+        <div class="dash-progress-labels">
+          <span id="dash-progress-now"></span>
+          <span id="dash-progress-next"></span>
+        </div>
+        <div class="progress"><div class="progress-fill" id="dash-progress-fill"></div></div>
+        <p class="dash-next" id="dash-next"></p>
+      </div>
+      <div class="dash-stats">
+        <div class="card stat"><span class="stat-val" id="dash-annual"></span><small>{{ strings['annual_purchases'] }}</small></div>
+        <div class="card stat"><span class="stat-val" id="dash-orders-count"></span><small>{{ strings['orders_in_app'] }}</small></div>
+        <div class="card stat"><span class="stat-val" id="dash-orders-total"></span><small>{{ strings['orders'] }}</small></div>
+      </div>
+    </section>
+
     <section id="catalog" class="panel active">
       <div id="catalog-grid" class="grid"></div>
     </section>

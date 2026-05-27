@@ -50,6 +50,14 @@ STRINGS: dict[str, dict[str, str]] = {
     "help_title": {"ar": "كيف يعمل التطبيق", "en": "How it works"},
     "contact_us": {"ar": "تواصل معنا", "en": "Contact us"},
     "become_distributor": {"ar": "كن موزّعاً", "en": "Become a distributor"},
+    "dashboard": {"ar": "لوحتي", "en": "Dashboard"},
+    "your_tier": {"ar": "فئتك الحالية", "en": "Your tier"},
+    "annual_purchases": {"ar": "مشترياتك السنوية", "en": "Annual purchases"},
+    "your_discount": {"ar": "خصمك", "en": "Your discount"},
+    "to_next_tier": {"ar": "للوصول للفئة التالية", "en": "to the next tier"},
+    "next_tier_label": {"ar": "الفئة التالية", "en": "Next tier"},
+    "top_tier": {"ar": "أنت في أعلى فئة 🎉", "en": "You're at the top tier 🎉"},
+    "orders_in_app": {"ar": "طلباتك عبر التطبيق", "en": "Orders via the app"},
 }
 
 FAQ = [

@@ -32,16 +32,39 @@ function bottleSvg() {
 }
 
 // ---- tabs ----
-$$(".tab").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    $$(".tab").forEach((b) => b.classList.remove("active"));
-    $$(".panel").forEach((p) => p.classList.remove("active"));
-    btn.classList.add("active");
-    $("#" + btn.dataset.tab).classList.add("active");
-    if (btn.dataset.tab === "orders") loadOrders();
-    if (btn.dataset.tab === "team") loadTeam();
-  });
-});
+function switchTab(name) {
+  const target = $$(".tab").find((b) => b.dataset.tab === name);
+  if (!target || target.hidden) return;
+  $$(".tab").forEach((b) => b.classList.remove("active"));
+  $$(".panel").forEach((p) => p.classList.remove("active"));
+  target.classList.add("active");
+  $("#" + name).classList.add("active");
+  if (name === "orders") loadOrders();
+  if (name === "team") loadTeam();
+  if (name === "dashboard") loadDashboard();
+}
+$$(".tab").forEach((btn) => btn.addEventListener("click", () => switchTab(btn.dataset.tab)));
+
+// ---- dashboard ----
+async function loadDashboard() {
+  const { ok, data } = await api("/api/dashboard");
+  if (!ok) return;
+  $("#dash-business").textContent = data.business;
+  $("#dash-tier").textContent = data.tier || "";
+  $("#dash-discount").textContent = `${data.discount_pct}%`;
+  $("#dash-annual").textContent = money(data.yearly_spend);
+  $("#dash-orders-count").textContent = data.orders_count;
+  $("#dash-orders-total").textContent = money(data.orders_total);
+  $("#dash-progress-fill").style.width = `${data.progress_pct}%`;
+  $("#dash-progress-now").textContent = `${data.discount_pct}%`;
+  if (data.next_tier) {
+    $("#dash-progress-next").textContent = `${data.next_tier.name} · ${data.next_tier.discount_pct}%`;
+    $("#dash-next").textContent = `${money(data.amount_to_next)} ${AR ? "متبقٍ" : "left"} ${AR ? "للوصول للفئة التالية" : "to the next tier"}`;
+  } else {
+    $("#dash-progress-next").textContent = "";
+    $("#dash-next").textContent = AR ? "أنت في أعلى فئة 🎉" : "You're at the top tier 🎉";
+  }
+}
 
 // ---- me / tier ----
 async function loadMe() {
@@ -56,10 +79,17 @@ async function loadMe() {
     badge.classList.remove("hidden");
     const teamTab = $("#tab-team");
     if (teamTab) teamTab.hidden = !data.user.can_manage_team;
+    const dashTab = $("#tab-dashboard");
+    if (dashTab) dashTab.hidden = false;
+    switchTab("dashboard");
   } else {
     loggedIn = false;
     canOrder = false;
     badge.classList.add("hidden");
+    const dashTab = $("#tab-dashboard");
+    if (dashTab) dashTab.hidden = true;
+    const teamTab = $("#tab-team");
+    if (teamTab) teamTab.hidden = true;
   }
 }
 
