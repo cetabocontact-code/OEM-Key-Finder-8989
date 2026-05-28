@@ -46,7 +46,7 @@
         `<div class="order"><strong>${a.business_name}</strong> — ${a.contact_name} · ${a.phone}
          <span class="meta">(${a.status})</span><div class="meta">docs: ${a.documents.length} · ${a.created_at}</div></div>`).join("") || "<p>None yet.</p>";
       document.getElementById("orders").innerHTML = d.orders.map((o) =>
-        `<div class="order"><strong>#${o.id}</strong> — ${o.client} · ${o.total} JOD <span class="meta">(${o.status})</span><div class="meta">${o.created_at}</div></div>`).join("") || "<p>None yet.</p>";
+        `<div class="order"><strong>#${o.id}</strong> — ${o.business} · ${o.total} JOD <span class="meta">(${o.status}${o.placed_by ? " · " + o.placed_by : ""})</span><div class="meta">${o.created_at}</div></div>`).join("") || "<p>None yet.</p>";
     }
     function msg(text, ok) { const m = document.getElementById("admin-msg"); m.className = "form-msg " + (ok ? "ok" : "err"); m.textContent = text; }
     document.getElementById("send-notify").addEventListener("click", async () => {
