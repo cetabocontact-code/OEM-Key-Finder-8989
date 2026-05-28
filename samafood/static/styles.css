@@ -86,6 +86,8 @@ main { padding: 1.2rem; max-width: 1100px; margin: 0 auto; }
 .stat { text-align: center; }
 .stat-val { display: block; font-size: 1.3rem; font-weight: 800; color: var(--brand); }
 .stat small { color: #5b6b7b; }
+.login-to-see { color: #5b6b7b; font-style: italic; padding: 0.4rem 0; }
+button[disabled], input[disabled] { opacity: 0.5; cursor: not-allowed; }
 .form-msg { min-height: 1.2rem; font-size: 0.9rem; }
 .form-msg.ok { color: var(--ok); }
 .form-msg.err { color: var(--err); }

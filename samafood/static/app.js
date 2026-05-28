@@ -151,18 +151,21 @@ async function loadCatalog() {
     const imgHtml = p.image_url
       ? `<img class="product-img" src="${p.image_url}" alt="${p.name}" loading="lazy">`
       : `<div class="product-img placeholder">${bottleSvg()}</div>`;
+    const priceRow = showYour
+      ? `<div class="price-row">
+           <span class="your-price">${money(p.your_price)}</span>
+           ${discountPct > 0 ? `<span class="base-price">${money(p.base_price)}</span>` : ""}
+         </div>`
+      : `<div class="price-row login-to-see">${AR ? "🔒 سجّل الدخول لرؤية السعر" : "🔒 Log in to see price"}</div>`;
     card.innerHTML = `
       ${imgHtml}
       <div class="cat">${p.category}</div>
       <h3>${p.name}</h3>
       <div class="size">${p.size}</div>
-      <div class="price-row">
-        <span class="your-price">${money(showYour ? p.your_price : p.base_price)}</span>
-        ${showYour && discountPct > 0 ? `<span class="base-price">${money(p.base_price)}</span>` : ""}
-      </div>
+      ${priceRow}
       <div class="qty-row">
-        <input type="number" min="0" step="${p.min_order}" placeholder="${AR ? "الكمية" : "Qty"}" data-min="${p.min_order}">
-        <button class="primary add" ${showYour ? "" : "disabled title='login'"}>${AR ? "أضف" : "Add"}</button>
+        <input type="number" min="0" step="${p.min_order}" placeholder="${AR ? "الكمية" : "Qty"}" data-min="${p.min_order}" ${showYour ? "" : "disabled"}>
+        <button class="primary add" ${showYour ? "" : "disabled"}>${AR ? "أضف" : "Add"}</button>
       </div>
       <div class="size">${AR ? "أدنى طلب" : "Min"}: ${p.min_order} · ${AR ? "متوفر" : "Stock"}: ${p.stock}</div>`;
     const input = card.querySelector("input");
