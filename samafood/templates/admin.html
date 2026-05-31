@@ -36,6 +36,11 @@
     </section>
 
     <section class="card">
+      <h2>Customer messages</h2>
+      <div id="messages"></div>
+    </section>
+
+    <section class="card">
       <h2>Demo data</h2>
       <p class="tagline">Demo rows are flagged <code>is_demo=1</code> (names prefixed with [DEMO]). Clear when real customers start onboarding.</p>
       <button id="demo-seed" class="ghost">Seed demo</button>
@@ -53,6 +58,10 @@
       document.getElementById("apps").innerHTML = d.applications.map((a) =>
         `<div class="order"><strong>${a.business_name}</strong> — ${a.contact_name} · ${a.phone}
          <span class="meta">(${a.status})</span><div class="meta">docs: ${a.documents.length} · ${a.created_at}</div></div>`).join("") || "<p>None yet.</p>";
+      document.getElementById("messages").innerHTML = (d.messages || []).map((m) =>
+        `<div class="order"><strong>${m.name}</strong> · ${m.phone} <span class="meta">(${m.status})</span>
+         <div class="meta">${m.subject || ""} · ${m.created_at}</div>
+         <div>${(m.message || "").replace(/</g,"&lt;")}</div></div>`).join("") || "<p>None yet.</p>";
       document.getElementById("orders").innerHTML = d.orders.map((o) =>
         `<div class="order"><strong>#${o.id}</strong> — ${o.business} · ${o.total} JOD <span class="meta">(${o.status}${o.placed_by ? " · " + o.placed_by : ""})</span><div class="meta">${o.created_at}</div></div>`).join("") || "<p>None yet.</p>";
     }

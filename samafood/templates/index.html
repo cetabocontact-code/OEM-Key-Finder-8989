@@ -20,7 +20,13 @@
     </div>
     <div class="topbar-actions">
       <span id="tier-badge" class="tier-badge hidden"></span>
-      <button id="notify-btn" class="ghost">{{ strings['enable_notifications'] }}</button>
+      <button id="notify-btn" class="icon-btn" title="{{ strings['enable_notifications'] }}" aria-label="{{ strings['enable_notifications'] }}">
+        <svg viewBox="0 0 28 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 8a6 6 0 0 1 12 0c0 7 3 9 3 9H2s3-2 3-9"/>
+          <path d="M9.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          <path d="M19.5 4.5c1.2 1 2 2.5 2 4M22.5 2c2 1.7 3 4 3 6.5"/>
+        </svg>
+      </button>
       <a class="ghost" href="?lang={{ 'en' if lang == 'ar' else 'ar' }}">{{ 'EN' if lang == 'ar' else 'عربي' }}</a>
       {% if user %}
         <button id="logout-btn" class="primary">{{ strings['logout'] }}</button>
@@ -38,6 +44,7 @@
     <button class="tab" data-tab="team" id="tab-team" {% if not (user and user.role == 'owner') %}hidden{% endif %}>{{ strings['team'] }}</button>
     <button class="tab" data-tab="vendor">{{ strings['become_distributor'] }}</button>
     <button class="tab" data-tab="help">{{ strings['help'] }}</button>
+    <button class="tab" data-tab="contact">{{ strings['contact_us'] }}</button>
   </nav>
 
   <main>
@@ -107,14 +114,28 @@
         </details>
         {% endfor %}
       </div>
+    </section>
+
+    <section id="contact" class="panel">
       <div class="card">
         <h2>{{ strings['contact_us'] }}</h2>
         <p>📍 {{ contact.address_ar if lang == 'ar' else contact.address_en }}</p>
-        <p>☎ <a href="tel:+96264059090">{{ contact.phone }}</a> &nbsp; · &nbsp; Fax {{ contact.fax }}</p>
+        <p>☎ <a href="tel:+96264059090"><bdi dir="ltr" class="ltr-num">{{ contact.phone }}</bdi></a></p>
+        <p>📠 Fax <bdi dir="ltr" class="ltr-num">{{ contact.fax }}</bdi></p>
         <p>✉ <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
-        <p>🌐 <a href="{{ contact.website }}" target="_blank" rel="noopener">{{ contact.website }}</a></p>
+        <p>🌐 <a href="{{ contact.website }}" target="_blank" rel="noopener"><bdi dir="ltr" class="ltr-num">{{ contact.website }}</bdi></a></p>
         <p>🕗 {{ contact.hours_ar if lang == 'ar' else contact.hours_en }}</p>
       </div>
+      <form id="contact-form" class="card form">
+        <h2>{{ strings['start_chat'] }}</h2>
+        <p class="tagline">{{ strings['start_chat_help'] }}</p>
+        <label>{{ strings['name'] }}<input name="name" {% if user %}value="{{ user.user_name }}"{% endif %} required></label>
+        <label>{{ strings['phone'] }}<input name="phone" type="tel" placeholder="+9627..." required></label>
+        <label>{{ strings['subject'] }}<input name="subject"></label>
+        <label>{{ strings['message'] }}<textarea name="message" rows="4" required></textarea></label>
+        <button class="primary" type="submit">{{ strings['send_message'] }}</button>
+        <p class="form-msg" id="contact-msg"></p>
+      </form>
     </section>
 
     <section id="vendor" class="panel">

@@ -127,6 +127,18 @@ CREATE TABLE IF NOT EXISTS notifications_log (
     ref TEXT NOT NULL DEFAULT '',
     sent_at TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id {pk},
+    user_id INTEGER REFERENCES users(id),
+    business_id INTEGER REFERENCES businesses(id),
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    subject TEXT NOT NULL DEFAULT '',
+    message TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'new',
+    created_at TEXT NOT NULL
+);
 """
 
 

@@ -338,6 +338,31 @@ function urlB64ToUint8Array(base64String) {
   return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
 }
 
+// ---- contact form ----
+const contactForm = $("#contact-form");
+if (contactForm) {
+  contactForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const msg = $("#contact-msg");
+    const { ok, data } = await api("/api/contact-message", {
+      method: "POST",
+      body: JSON.stringify({
+        name: fd.get("name"), phone: fd.get("phone"),
+        subject: fd.get("subject"), message: fd.get("message"),
+      }),
+    });
+    if (ok) {
+      msg.className = "form-msg ok";
+      msg.textContent = AR ? "تم إرسال رسالتك. سيتواصل معك فريق سما قريباً." : "Message sent. Sama's team will get back to you.";
+      e.target.reset();
+    } else {
+      msg.className = "form-msg err";
+      msg.textContent = data.error || "error";
+    }
+  });
+}
+
 $("#notify-btn").addEventListener("click", async () => {
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     alert(AR ? "الإشعارات غير مدعومة في هذا المتصفح." : "Push not supported in this browser.");
@@ -352,7 +377,9 @@ $("#notify-btn").addEventListener("click", async () => {
     applicationServerKey: urlB64ToUint8Array(vapid),
   });
   await api("/api/push/subscribe", { method: "POST", body: JSON.stringify(sub) });
-  $("#notify-btn").textContent = AR ? "الإشعارات مفعّلة" : "Notifications on";
+  const btn = $("#notify-btn");
+  btn.classList.add("active");
+  btn.title = AR ? "الإشعارات مفعّلة" : "Notifications on";
 });
 
 // ---- init ----

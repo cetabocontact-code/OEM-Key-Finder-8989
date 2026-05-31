@@ -469,6 +469,35 @@ def create_app() -> Flask:
             conn.close()
         return jsonify({"ok": True})
 
+    # ---- contact messages ----------------------------------------------
+    @app.post("/api/contact-message")
+    def contact_message():
+        data = request.json or {}
+        name = (data.get("name") or "").strip()[:120]
+        phone = (data.get("phone") or "").strip()[:20]
+        subject = (data.get("subject") or "").strip()[:200]
+        message = (data.get("message") or "").strip()[:2000]
+        if not name or not phone or not message:
+            return jsonify({"error": "missing_fields"}), 400
+        if not PHONE_RE.match(phone):
+            return jsonify({"error": "invalid_phone"}), 400
+        user = current_user()
+        conn = db.get_db()
+        try:
+            conn.execute(
+                """INSERT INTO contact_messages (user_id, business_id, name, phone, subject, message, status, created_at)
+                   VALUES (?,?,?,?,?,?,'new',?)""",
+                (
+                    user["user_id"] if user else None,
+                    user["business_id"] if user else None,
+                    name, phone, subject, message, db.utc_now(),
+                ),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+        return jsonify({"ok": True})
+
     # ---- vendor / distributor application ------------------------------
     @app.post("/api/vendor-application")
     def vendor_application():
@@ -582,6 +611,11 @@ def create_app() -> Flask:
                     "SELECT id, business_name, contact_name, phone, status, documents_json, created_at FROM vendor_applications ORDER BY id DESC LIMIT 50"
                 ).fetchall()
             )
+            messages = db.rows_to_dicts(
+                conn.execute(
+                    "SELECT id, name, phone, subject, message, status, created_at FROM contact_messages ORDER BY id DESC LIMIT 50"
+                ).fetchall()
+            )
             subs = conn.execute("SELECT COUNT(*) AS n FROM push_subscriptions").fetchone()["n"]
             businesses = conn.execute("SELECT COUNT(*) AS n FROM businesses").fetchone()["n"]
             users = conn.execute("SELECT COUNT(*) AS n FROM users").fetchone()["n"]
@@ -596,6 +630,7 @@ def create_app() -> Flask:
             {
                 "orders": orders,
                 "applications": apps,
+                "messages": messages,
                 "subscribers": subs,
                 "businesses": businesses,
                 "users": users,

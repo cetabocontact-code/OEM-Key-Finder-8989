@@ -74,6 +74,11 @@ STRINGS: dict[str, dict[str, str]] = {
     "horeca": {"ar": "فندق / مرافق ضيافة", "en": "Hotel / HoReCa"},
     "retail": {"ar": "تجارة تجزئة", "en": "Retail"},
     "submit_application": {"ar": "إرسال الطلب", "en": "Submit application"},
+    "start_chat": {"ar": "ابدأ محادثة", "en": "Start a chat"},
+    "start_chat_help": {"ar": "أرسل تفاصيلك ورسالتك وسيتواصل معك فريق سما.", "en": "Send your details and message — Sama's team will get back to you."},
+    "subject": {"ar": "الموضوع", "en": "Subject"},
+    "message": {"ar": "الرسالة", "en": "Message"},
+    "send_message": {"ar": "إرسال", "en": "Send message"},
 }
 
 FAQ = [
@@ -100,8 +105,8 @@ FAQ = [
 ]
 
 CONTACT = {
-    "address_en": "Salem Village Main Road, Shahab — Amman, Jordan",
-    "address_ar": "طريق قرية سالم الرئيسي، شهاب — عمّان، الأردن",
+    "address_en": "Salem Village Main Road, Shahab, Amman, Jordan",
+    "address_ar": "طريق قرية سالم الرئيسي، شهاب، عمّان، الأردن",
     "phone": "+962 6 405 9090",
     "fax": "+962 6 405 9080",
     "email": "Info@samafood.jo",
