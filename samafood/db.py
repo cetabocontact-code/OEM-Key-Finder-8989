@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS businesses (
     yearly_spend REAL NOT NULL DEFAULT 0,
     tier_id INTEGER REFERENCES tiers(id),
     status TEXT NOT NULL DEFAULT 'approved',
+    is_demo INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL
 );
 
@@ -99,6 +100,7 @@ CREATE TABLE IF NOT EXISTS vendor_applications (
     client_type TEXT NOT NULL DEFAULT 'retail',
     documents_json TEXT NOT NULL DEFAULT '[]',
     status TEXT NOT NULL DEFAULT 'pending',
+    is_demo INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL
 );
 
@@ -231,19 +233,10 @@ def _seed(conn: Conn) -> None:
             (offer["title_en"], offer["title_ar"], offer["body_en"], offer["body_ar"], offer["kind"], utc_now()),
         )
 
-    demo = data["demo_business"]
-    tier_id = tier_for_spend(conn, demo["yearly_spend"])
-    business_id = conn.insert(
-        """INSERT INTO businesses (name_en, name_ar, phone, client_type, yearly_spend, tier_id, status, created_at)
-           VALUES (?,?,?,?,?,?,'approved',?)""",
-        (demo["name_en"], demo["name_ar"], demo["phone"], demo["client_type"], demo["yearly_spend"], tier_id, utc_now()),
-    )
-    for user in demo["users"]:
-        conn.execute(
-            "INSERT INTO users (business_id, name, phone, role, status, created_at) VALUES (?,?,?,?,'active',?)",
-            (business_id, user["name"], user["phone"], user["role"], utc_now()),
-        )
     conn.commit()
+    from . import demo as demo_module
+
+    demo_module.seed_demo(conn)
 
 
 def tier_for_spend(conn: Conn, spend: float) -> int | None:

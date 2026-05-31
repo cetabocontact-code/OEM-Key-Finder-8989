@@ -535,6 +535,20 @@ def create_app() -> Flask:
         dry_run = bool((request.json or {}).get("dry_run"))
         return jsonify(notify.run(dry_run=dry_run))
 
+    @app.post("/api/admin/demo")
+    @admin_required
+    def admin_demo():
+        from . import demo as demo_module
+
+        action = (request.json or {}).get("action", "")
+        if action == "seed":
+            return jsonify(demo_module.seed_demo(force=True))
+        if action == "clear":
+            return jsonify(demo_module.clear_demo())
+        if action == "reseed":
+            return jsonify(demo_module.reseed_demo())
+        return jsonify({"error": "unknown_action", "valid": ["seed", "clear", "reseed"]}), 400
+
     @app.get("/api/admin/overview")
     @admin_required
     def admin_overview():

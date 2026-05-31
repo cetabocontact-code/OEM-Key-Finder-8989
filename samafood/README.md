@@ -24,9 +24,12 @@ open on a phone. HTTPS also makes push notifications work.
 Demo login on the live link: phone **+962790000000** (OTP shows on screen in
 dev mode). Admin at `/admin`.
 
-## Run locally
+## Run locally (pull this branch onto your laptop)
 
 ```bash
+git clone -b claude/vendor-notification-app-xaE8l \
+  https://github.com/cetabocontact-code/OEM-Key-Finder-8989.git
+cd OEM-Key-Finder-8989
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 export SAMA_ADMIN_PASSWORD=choose-a-password
@@ -34,9 +37,23 @@ gunicorn "samafood:create_app()" --bind 0.0.0.0:8080
 # open http://localhost:8080  (admin at /admin)
 ```
 
-Demo client phone: `+962790000000` (Silver tier, 4% discount). With no SMS
-gateway configured, the OTP is returned in the login response (dev mode) and
-shown on screen.
+To pull future updates: `git pull origin claude/vendor-notification-app-xaE8l`.
+
+## Demo data
+
+On first run the database is auto-populated with **clearly marked demo
+businesses** (names prefixed with `[DEMO]`, flag `is_demo=1`) — one per
+tier (Bronze / Silver / Gold / Platinum), each with 2-3 users and a few
+months of historical orders. See `docs/QA_TEST_PLAN.md` for the demo phone
+numbers and a full QA checklist.
+
+Manage demo data:
+- **Admin UI:** Admin → Demo data → Seed / Reseed / Clear.
+- **CLI:** `python -m samafood.demo {seed|clear|reseed}`.
+
+`Clear demo` only purges `is_demo=1` rows (and their dependents). Real
+customers onboarded later via the vendor-application form are never
+touched.
 
 ## Environment variables
 

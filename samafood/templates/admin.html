@@ -34,6 +34,14 @@
       <h2>Recent orders</h2>
       <div id="orders"></div>
     </section>
+
+    <section class="card">
+      <h2>Demo data</h2>
+      <p class="tagline">Demo rows are flagged <code>is_demo=1</code> (names prefixed with [DEMO]). Clear when real customers start onboarding.</p>
+      <button id="demo-seed" class="ghost">Seed demo</button>
+      <button id="demo-reseed" class="ghost">Reseed (clear + seed)</button>
+      <button id="demo-clear" class="ghost" style="border-color:#c0392b;color:#c0392b">Clear demo</button>
+    </section>
   </main>
   <script>
     async function load() {
@@ -64,6 +72,16 @@
     document.getElementById("logout").addEventListener("click", async () => {
       await fetch("/api/admin/logout", { method: "POST" }); location.href = "/admin/login";
     });
+    async function demoAction(action, confirmText) {
+      if (confirmText && !confirm(confirmText)) return;
+      const res = await fetch("/api/admin/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
+      const d = await res.json();
+      msg(res.ok ? `Demo ${action}: ${JSON.stringify(d)}` : (d.error || "error"), res.ok);
+      if (res.ok) load();
+    }
+    document.getElementById("demo-seed").addEventListener("click", () => demoAction("seed"));
+    document.getElementById("demo-reseed").addEventListener("click", () => demoAction("reseed", "Wipe all demo rows and re-create them?"));
+    document.getElementById("demo-clear").addEventListener("click", () => demoAction("clear", "Wipe all demo rows? (Real data is untouched.)"));
     load();
   </script>
 </body>
