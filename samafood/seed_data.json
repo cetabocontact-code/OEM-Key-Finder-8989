@@ -39,7 +39,7 @@
       "base_price": 2.8,
       "min_order": 1,
       "stock": 2400,
-      "image_url": "/static/products/cola.svg"
+      "image_url": "/static/products/cola.png"
     },
     {
       "sku": "CSD-ORG-250",
@@ -50,7 +50,7 @@
       "base_price": 2.8,
       "min_order": 1,
       "stock": 1800,
-      "image_url": "/static/products/orange-soda.svg"
+      "image_url": "/static/products/orange-soda.png"
     },
     {
       "sku": "CSD-LEM-250",
@@ -72,7 +72,7 @@
       "base_price": 2.8,
       "min_order": 1,
       "stock": 1500,
-      "image_url": "/static/products/fruit-soda.svg"
+      "image_url": "/static/products/fruit-soda.png"
     },
     {
       "sku": "CSF-COL-250",
@@ -94,7 +94,7 @@
       "base_price": 3.1,
       "min_order": 1,
       "stock": 1000,
-      "image_url": "/static/products/lemon-zero.svg"
+      "image_url": "/static/products/lemon-zero.png"
     },
     {
       "sku": "FD-MNG-250",
@@ -292,7 +292,7 @@
       "base_price": 9.6,
       "min_order": 1,
       "stock": 1500,
-      "image_url": "/static/products/raz.svg"
+      "image_url": "/static/products/raz.png"
     },
     {
       "sku": "WTR-200",
