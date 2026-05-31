@@ -108,3 +108,57 @@ button[disabled], input[disabled] { opacity: 0.5; cursor: not-allowed; }
 .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
 .modal-card { background: #fff; border-radius: 1rem; padding: 1.5rem; width: min(360px, 92%); position: relative; }
 #close-login { position: absolute; inset-inline-end: 0.6rem; top: 0.4rem; background: transparent; font-size: 1.4rem; }
+
+/* ---- public auth pages (login / apply) -------------------------------- */
+body.auth-page {
+  min-height: 100vh;
+  margin: 0;
+  background: linear-gradient(160deg, #eaf1fb 0%, #ffffff 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.auth-card {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 6px 28px rgba(19, 56, 140, 0.12);
+  padding: 2rem 1.6rem;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+.auth-card-wide { max-width: 520px; }
+.auth-logo {
+  height: 110px;
+  width: auto;
+  display: block;
+  margin: 0 auto 0.8rem;
+}
+.auth-card h1 { margin: 0.2rem 0 0.3rem; color: var(--brand); font-size: 1.3rem; }
+.auth-card .tagline { margin: 0 0 1.4rem; color: var(--muted); font-size: 0.95rem; }
+.auth-card form label { display: block; text-align: start; margin: 0.7rem 0; font-weight: 600; color: var(--brand); }
+.auth-card form input, .auth-card form select { display: block; width: 100%; margin-top: 0.3rem; padding: 0.7rem; border: 1px solid #cdd7e0; border-radius: 0.55rem; font: inherit; box-sizing: border-box; background: #fff; }
+.auth-card .primary { width: 100%; padding: 0.8rem; font-size: 1rem; margin-top: 0.5rem; }
+.auth-card .form-msg { margin-top: 0.6rem; min-height: 1.2em; font-size: 0.9rem; }
+.auth-card .form-msg.ok { color: #1b7a3f; }
+.auth-card .form-msg.err { color: #c0392b; }
+.auth-help {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eef2f6;
+  text-align: start;
+}
+.auth-help summary {
+  cursor: pointer;
+  color: var(--brand);
+  font-weight: 700;
+  list-style: none;
+}
+.auth-help summary::-webkit-details-marker { display: none; }
+.auth-help summary::before { content: "▸ "; }
+.auth-help[open] summary::before { content: "▾ "; }
+.auth-help p { margin: 0.5rem 0; color: var(--text); font-size: 0.92rem; }
+.auth-help a, .auth-card .primary-link { color: var(--brand); font-weight: 600; }
+.auth-foot { margin-top: 1.2rem; font-size: 0.9rem; }
+.auth-foot a { color: var(--brand); }

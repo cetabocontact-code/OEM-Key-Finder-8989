@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{% if lang == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ strings['become_distributor'] }} — Sama</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body class="auth-page">
+  <main class="auth-card auth-card-wide">
+    <img class="auth-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Sama">
+    <h1>{{ strings['become_distributor'] }}</h1>
+    <p class="tagline">{{ strings['apply_tagline'] }}</p>
+
+    <form id="apply-form" enctype="multipart/form-data">
+      <label>{{ strings['business_name'] }}<input name="business_name" required></label>
+      <label>{{ strings['contact_name'] }}<input name="contact_name" required></label>
+      <label>{{ strings['phone'] }}<input name="phone" type="tel" placeholder="+9627..." required></label>
+      <label>{{ strings['client_type'] }}
+        <select name="client_type">
+          <option value="supermarket">{{ strings['supermarket'] }}</option>
+          <option value="restaurant">{{ strings['restaurant'] }}</option>
+          <option value="cafe">{{ strings['cafe'] }}</option>
+          <option value="horeca">{{ strings['horeca'] }}</option>
+          <option value="retail">{{ strings['retail'] }}</option>
+        </select>
+      </label>
+      <label>{{ strings['documents'] }}<input type="file" name="documents" multiple accept="application/pdf,image/png,image/jpeg"></label>
+      <button class="primary" type="submit">{{ strings['submit_application'] }}</button>
+      <p id="apply-msg" class="form-msg"></p>
+    </form>
+
+    <p class="auth-foot"><a href="/">← {{ strings['back_to_login'] }}</a></p>
+  </main>
+
+  <script>
+    const AR = document.documentElement.lang === 'ar';
+    document.getElementById('apply-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('apply-msg');
+      const fd = new FormData(e.target);
+      const r = await fetch('/api/vendor-application', { method: 'POST', body: fd });
+      const d = await r.json();
+      if (r.ok) {
+        msg.className = 'form-msg ok';
+        msg.textContent = AR ? 'تم استلام طلبك. سنتواصل معك قريباً.' : 'Application received. Sama will contact you shortly.';
+        e.target.reset();
+      } else {
+        msg.className = 'form-msg err';
+        msg.textContent = d.error || 'error';
+      }
+    });
+  </script>
+</body>
+</html>

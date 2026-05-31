@@ -58,6 +58,22 @@ STRINGS: dict[str, dict[str, str]] = {
     "next_tier_label": {"ar": "الفئة التالية", "en": "Next tier"},
     "top_tier": {"ar": "أنت في أعلى فئة 🎉", "en": "You're at the top tier 🎉"},
     "orders_in_app": {"ar": "طلباتك عبر التطبيق", "en": "Orders via the app"},
+    "login_tagline": {"ar": "بوابة الموزّعين المعتمدين لدى سما فود", "en": "Authorized distributor portal for Sama Food Industries"},
+    "send_code": {"ar": "أرسل رمز التحقق", "en": "Send code"},
+    "otp_code": {"ar": "رمز التحقق", "en": "Verification code"},
+    "verify": {"ar": "تحقق ودخول", "en": "Verify and sign in"},
+    "trouble_signing_in": {"ar": "تعذّر تسجيل الدخول؟", "en": "Trouble signing in?"},
+    "trouble_signing_in_help": {"ar": "إذا لم تكن مسجّلاً، يمكنك التقدّم لتصبح موزّعاً معتمداً. وإذا فقدت الوصول لرقم هاتفك المسجّل، تواصل مع سما مباشرة.", "en": "If you're not yet registered you can apply to become an authorized distributor. If you've lost access to your registered phone, contact Sama directly."},
+    "apply_now": {"ar": "تقدّم لتصبح موزّعاً", "en": "Apply to become a distributor"},
+    "back_to_login": {"ar": "العودة لتسجيل الدخول", "en": "Back to sign in"},
+    "apply_tagline": {"ar": "أرسل طلبك ليراجعه فريق سما — سيتم التواصل معك للتأكيد.", "en": "Submit your application — Sama's team will review and contact you."},
+    "client_type": {"ar": "نوع النشاط", "en": "Business type"},
+    "supermarket": {"ar": "سوبرماركت", "en": "Supermarket"},
+    "restaurant": {"ar": "مطعم", "en": "Restaurant"},
+    "cafe": {"ar": "مقهى", "en": "Café"},
+    "horeca": {"ar": "فندق / مرافق ضيافة", "en": "Hotel / HoReCa"},
+    "retail": {"ar": "تجارة تجزئة", "en": "Retail"},
+    "submit_application": {"ar": "إرسال الطلب", "en": "Submit application"},
 }
 
 FAQ = [

@@ -123,6 +123,13 @@ def create_app() -> Flask:
     @app.get("/")
     def home():
         user = current_user()
+        if not user:
+            return render_template(
+                "login.html",
+                lang=g.lang,
+                strings={k: t(k, g.lang) for k in STRINGS},
+                contact=CONTACT,
+            )
         return render_template(
             "index.html",
             lang=g.lang,
@@ -131,6 +138,15 @@ def create_app() -> Flask:
             faq=FAQ,
             contact=CONTACT,
             vapid_public_key=push.public_key(),
+        )
+
+    @app.get("/apply")
+    def apply_page():
+        return render_template(
+            "apply.html",
+            lang=g.lang,
+            strings={k: t(k, g.lang) for k in STRINGS},
+            contact=CONTACT,
         )
 
     @app.get("/admin")

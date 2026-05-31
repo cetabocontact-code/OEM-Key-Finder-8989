@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{% if lang == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ strings['app_name'] }} — {{ strings['login'] }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body class="auth-page">
+  <main class="auth-card">
+    <img class="auth-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Sama">
+    <h1>{{ strings['app_name'] }}</h1>
+    <p class="tagline">{{ strings['login_tagline'] }}</p>
+
+    <form id="auth-form" autocomplete="off">
+      <label>{{ strings['phone'] }}
+        <input id="phone" type="tel" inputmode="tel" placeholder="+9627..." autocomplete="tel" required>
+      </label>
+      <div id="otp-row" hidden>
+        <label>{{ strings['otp_code'] }}
+          <input id="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code">
+        </label>
+      </div>
+      <button id="send-btn" class="primary" type="button">{{ strings['send_code'] }}</button>
+      <button id="verify-btn" class="primary" type="submit" hidden>{{ strings['verify'] }}</button>
+      <p id="auth-msg" class="form-msg"></p>
+    </form>
+
+    <details class="auth-help">
+      <summary>{{ strings['trouble_signing_in'] }}</summary>
+      <p>{{ strings['trouble_signing_in_help'] }}</p>
+      <p><a class="primary-link" href="/apply">{{ strings['apply_now'] }} →</a></p>
+      <p>☎ <a href="tel:+96264059090">{{ contact.phone }}</a></p>
+      <p>✉ <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
+    </details>
+
+    <div class="auth-foot">
+      {% if lang == 'ar' %}<a href="?lang=en">English</a>{% else %}<a href="?lang=ar">عربي</a>{% endif %}
+    </div>
+  </main>
+
+  <script>
+    const phoneEl = document.getElementById('phone');
+    const otpRow = document.getElementById('otp-row');
+    const otpEl = document.getElementById('otp');
+    const sendBtn = document.getElementById('send-btn');
+    const verifyBtn = document.getElementById('verify-btn');
+    const msg = document.getElementById('auth-msg');
+    const AR = document.documentElement.lang === 'ar';
+    const errs = {
+      invalid_phone: AR ? "رقم غير صالح" : "Invalid phone number",
+      not_registered: AR ? "رقم غير مسجّل. يمكنك التقدّم كموزّع." : "Phone not registered. You can apply to become a distributor.",
+      user_disabled: AR ? "تم تعطيل حسابك. تواصل مع المالك." : "Your account is disabled. Contact your business owner.",
+      not_approved: AR ? "نشاطك قيد المراجعة." : "Your business is pending approval.",
+      wrong_code: AR ? "رمز خاطئ" : "Wrong code",
+      code_expired: AR ? "انتهت صلاحية الرمز" : "Code expired",
+      too_many_attempts: AR ? "محاولات كثيرة جداً" : "Too many attempts",
+      no_code: AR ? "اطلب رمزاً جديداً" : "Request a code first",
+    };
+
+    sendBtn.addEventListener('click', async () => {
+      msg.className = 'form-msg';
+      msg.textContent = '';
+      const r = await fetch('/api/auth/request-otp', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({phone: phoneEl.value.trim()})
+      });
+      const d = await r.json();
+      if (r.ok) {
+        otpRow.hidden = false;
+        verifyBtn.hidden = false;
+        sendBtn.hidden = true;
+        otpEl.focus();
+        if (d.dev_code) {
+          msg.className = 'form-msg ok';
+          msg.textContent = (AR ? "رمز التجربة: " : "Dev code: ") + d.dev_code;
+        }
+      } else {
+        msg.className = 'form-msg err';
+        msg.textContent = errs[d.error] || d.error || 'error';
+      }
+    });
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const r = await fetch('/api/auth/verify-otp', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({phone: phoneEl.value.trim(), code: otpEl.value.trim()})
+      });
+      const d = await r.json();
+      if (r.ok) {
+        window.location.href = '/';
+      } else {
+        msg.className = 'form-msg err';
+        msg.textContent = errs[d.error] || d.error || 'error';
+      }
+    });
+  </script>
+</body>
+</html>
