@@ -299,12 +299,25 @@ def create_app() -> Flask:
         )
 
     # ---- orders --------------------------------------------------------
+    DELIVERY_METHODS = ("pickup", "delivery")
+    PAYMENT_METHODS = ("on_account", "cash", "card")
+
     @app.post("/api/orders")
     @role_required(*ORDERING_ROLES)
     def create_order():
         user = g.user
-        items_in = (request.json or {}).get("items", [])
-        note = (request.json or {}).get("note", "")[:500]
+        body = request.json or {}
+        items_in = body.get("items", [])
+        note = (body.get("note") or "")[:500]
+        delivery_method = body.get("delivery_method", "pickup")
+        delivery_address = (body.get("delivery_address") or "")[:300]
+        payment_method = body.get("payment_method", "on_account")
+        if delivery_method not in DELIVERY_METHODS:
+            return jsonify({"error": "invalid_delivery_method"}), 400
+        if payment_method not in PAYMENT_METHODS:
+            return jsonify({"error": "invalid_payment_method"}), 400
+        if delivery_method == "delivery" and not delivery_address.strip():
+            return jsonify({"error": "delivery_address_required"}), 400
         if not isinstance(items_in, list) or not items_in:
             return jsonify({"error": "empty_order"}), 400
         conn = db.get_db()
@@ -330,14 +343,21 @@ def create_app() -> Flask:
                 return jsonify({"error": "empty_order"}), 400
             total = round(subtotal * (1 - discount / 100), 3)
             order_id = conn.insert(
-                """INSERT INTO orders (business_id, user_id, items_json, subtotal, discount_pct, total, status, note, created_at)
-                   VALUES (?,?,?,?,?,?,'submitted',?,?)""",
-                (user["business_id"], user["user_id"], json.dumps(line_items, ensure_ascii=False), round(subtotal, 3), discount, total, note, db.utc_now()),
+                """INSERT INTO orders (business_id, user_id, items_json, subtotal, discount_pct, total, status, note,
+                                       delivery_method, delivery_address, payment_method, created_at)
+                   VALUES (?,?,?,?,?,?,'submitted',?,?,?,?,?)""",
+                (user["business_id"], user["user_id"], json.dumps(line_items, ensure_ascii=False),
+                 round(subtotal, 3), discount, total, note,
+                 delivery_method, delivery_address, payment_method, db.utc_now()),
             )
             conn.commit()
         finally:
             conn.close()
-        return jsonify({"ok": True, "order_id": order_id, "subtotal": round(subtotal, 3), "discount_pct": discount, "total": total})
+        return jsonify({
+            "ok": True, "order_id": order_id,
+            "subtotal": round(subtotal, 3), "discount_pct": discount, "total": total,
+            "delivery_method": delivery_method, "payment_method": payment_method,
+        })
 
     @app.get("/api/orders")
     @login_required
@@ -347,6 +367,7 @@ def create_app() -> Flask:
         try:
             rows = conn.execute(
                 """SELECT o.id, o.items_json, o.subtotal, o.discount_pct, o.total, o.status, o.created_at,
+                          o.delivery_method, o.delivery_address, o.payment_method, o.note,
                           u.name AS placed_by
                    FROM orders o LEFT JOIN users u ON u.id = o.user_id
                    WHERE o.business_id = ? ORDER BY o.id DESC""",
@@ -364,10 +385,47 @@ def create_app() -> Flask:
                 "status": r["status"],
                 "placed_by": r["placed_by"],
                 "created_at": r["created_at"],
+                "delivery_method": r["delivery_method"],
+                "delivery_address": r["delivery_address"],
+                "payment_method": r["payment_method"],
+                "note": r["note"],
             }
             for r in rows
         ]
         return jsonify({"orders": orders})
+
+    @app.get("/api/orders/<int:order_id>")
+    @login_required
+    def order_detail(order_id: int):
+        user = current_user()
+        conn = db.get_db()
+        try:
+            row = conn.execute(
+                """SELECT o.*, u.name AS placed_by, b.name_en AS business_en, b.name_ar AS business_ar
+                   FROM orders o LEFT JOIN users u ON u.id = o.user_id
+                   JOIN businesses b ON b.id = o.business_id
+                   WHERE o.id = ? AND o.business_id = ?""",
+                (order_id, user["business_id"]),
+            ).fetchone()
+        finally:
+            conn.close()
+        if not row:
+            return jsonify({"error": "not_found"}), 404
+        return jsonify({
+            "id": row["id"],
+            "items": json.loads(row["items_json"]),
+            "subtotal": row["subtotal"],
+            "discount_pct": row["discount_pct"],
+            "total": row["total"],
+            "status": row["status"],
+            "placed_by": row["placed_by"],
+            "created_at": row["created_at"],
+            "delivery_method": row["delivery_method"],
+            "delivery_address": row["delivery_address"],
+            "payment_method": row["payment_method"],
+            "note": row["note"],
+            "business": row["business_ar"] if g.lang == "ar" else row["business_en"],
+        })
 
     # ---- dashboard -----------------------------------------------------
     @app.get("/api/dashboard")

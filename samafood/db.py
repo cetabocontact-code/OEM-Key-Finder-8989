@@ -89,6 +89,9 @@ CREATE TABLE IF NOT EXISTS orders (
     total REAL NOT NULL,
     status TEXT NOT NULL DEFAULT 'submitted',
     note TEXT NOT NULL DEFAULT '',
+    delivery_method TEXT NOT NULL DEFAULT 'pickup',
+    delivery_address TEXT NOT NULL DEFAULT '',
+    payment_method TEXT NOT NULL DEFAULT 'on_account',
     created_at TEXT NOT NULL
 );
 
@@ -207,11 +210,33 @@ def init_db() -> None:
     conn = get_db()
     try:
         conn.executescript(SCHEMA.format(pk=_PK))
+        _migrate(conn)
         conn.commit()
         if conn.execute("SELECT COUNT(*) AS n FROM tiers").fetchone()["n"] == 0:
             _seed(conn)
     finally:
         conn.close()
+
+
+def _migrate(conn: "Conn") -> None:
+    """Best-effort column additions for already-existing DBs.
+
+    Each ALTER is a no-op when the column is already there; we swallow the
+    'duplicate column'/'already exists' error so init stays idempotent on
+    both SQLite (local dev) and Postgres (Render).
+    """
+    additive = [
+        "ALTER TABLE orders ADD COLUMN delivery_method TEXT NOT NULL DEFAULT 'pickup'",
+        "ALTER TABLE orders ADD COLUMN delivery_address TEXT NOT NULL DEFAULT ''",
+        "ALTER TABLE orders ADD COLUMN payment_method TEXT NOT NULL DEFAULT 'on_account'",
+    ]
+    for sql in additive:
+        try:
+            conn.execute(sql)
+            conn.commit()
+        except Exception:  # noqa: BLE001 - column already exists, ignore
+            if conn.is_pg:
+                conn.raw.rollback()
 
 
 def _seed(conn: Conn) -> None:

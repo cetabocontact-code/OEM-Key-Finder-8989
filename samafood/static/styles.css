@@ -172,3 +172,119 @@ body.auth-page {
 .auth-help a, .auth-card .primary-link { color: var(--brand); font-weight: 600; }
 .auth-foot { margin-top: 1.2rem; font-size: 0.9rem; }
 .auth-foot a { color: var(--brand); }
+
+/* ---- main app: bottom nav + checkout + receipt ----------------------- */
+body.app-page main { padding-bottom: 90px; } /* leave room above the bottom nav */
+
+.bottom-nav {
+  position: fixed; inset-inline: 0; bottom: 0; z-index: 30;
+  display: flex; justify-content: space-around; align-items: stretch;
+  background: #fff; border-top: 1px solid #e2e8ee;
+  box-shadow: 0 -2px 12px rgba(19,56,140,0.08);
+  padding: 0.3rem 0.4rem; padding-bottom: max(0.3rem, env(safe-area-inset-bottom));
+}
+.nav-btn {
+  flex: 1; background: transparent; color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+  padding: 0.45rem 0.2rem; border-radius: 0.6rem; font-size: 0.72rem; font-weight: 600;
+  position: relative; min-width: 0;
+}
+.nav-btn svg { width: 24px; height: 24px; }
+.nav-btn span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.nav-btn.active { color: var(--brand); background: rgba(19,56,140,0.07); }
+.nav-btn:hover { color: var(--brand); }
+.cart-badge {
+  position: absolute; top: 2px; inset-inline-end: calc(50% - 18px);
+  background: var(--accent); color: #fff; font-size: 0.65rem; font-weight: 800;
+  min-width: 18px; height: 18px; padding: 0 4px; border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* cart / checkout */
+.cart-line {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+  padding: 0.6rem 0; border-bottom: 1px solid #eef2f6;
+}
+.cart-line:last-child { border-bottom: none; }
+.cart-line-info { flex: 1; min-width: 0; }
+.cart-line-name { font-weight: 700; color: var(--text); }
+.cart-line-sub { color: var(--muted); font-size: 0.85rem; margin-top: 0.2rem; }
+.qty-input {
+  width: 3.5rem; padding: 0.3rem; border: 1px solid #cdd7e0; border-radius: 0.4rem;
+  text-align: center; font: inherit; margin-inline-start: 0.3rem;
+}
+.cart-line-total { display: flex; gap: 0.4rem; align-items: center; font-weight: 700; color: var(--brand); }
+.rm { background: transparent; color: var(--err); font-weight: 800; padding: 0.2rem 0.5rem; }
+
+.radio { display: block; padding: 0.55rem 0; cursor: pointer; }
+.radio input { margin-inline-end: 0.5rem; }
+.totals-card .totals-row { display: flex; justify-content: space-between; padding: 0.3rem 0; }
+.totals-card .grand { font-weight: 800; font-size: 1.1rem; color: var(--brand); border-top: 1px solid #e2e8ee; margin-top: 0.4rem; padding-top: 0.5rem; }
+.totals-card .primary { width: 100%; margin-top: 0.8rem; padding: 0.9rem; font-size: 1rem; }
+.muted { color: var(--muted); text-align: center; padding: 1rem 0; }
+
+/* confirmation card */
+.confirm-card { text-align: center; padding: 2rem 1.5rem; }
+.confirm-icon {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: #1f9d55; color: #fff; font-size: 2.4rem; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.8rem;
+}
+.confirm-card h2 { margin: 0.3rem 0; color: var(--brand); }
+.confirm-num, .confirm-total { font-size: 1.05rem; margin: 0.4rem 0; }
+.confirm-actions { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.2rem; flex-wrap: wrap; }
+.confirm-actions .primary, .confirm-actions .ghost { padding: 0.7rem 1.2rem; }
+
+/* orders list (clickable rows) */
+.order-row {
+  width: 100%; background: #fff; border: none; text-align: start;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.8rem 1rem; border-radius: 0.6rem; margin-bottom: 0.6rem; cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.order-row:hover { box-shadow: 0 2px 8px rgba(19,56,140,0.12); }
+.order-row-left, .order-row-right { display: flex; flex-direction: column; gap: 0.1rem; }
+.order-row-right { align-items: flex-end; }
+.order-total { color: var(--brand); font-weight: 800; }
+
+/* receipt */
+.receipt-actions { display: flex; gap: 0.5rem; justify-content: space-between; margin-bottom: 0.6rem; }
+.receipt { padding: 1.4rem; }
+.receipt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 2px solid var(--brand); margin-bottom: 1rem; }
+.receipt-logo { height: 70px; width: auto; }
+.receipt-meta { text-align: end; }
+.receipt-table { width: 100%; border-collapse: collapse; margin: 0.4rem 0 0.8rem; }
+.receipt-table th, .receipt-table td { padding: 0.5rem 0.4rem; border-bottom: 1px solid #eef2f6; }
+.receipt-table th { color: var(--brand); font-size: 0.85rem; text-align: start; }
+.receipt-table .num { text-align: end; font-variant-numeric: tabular-nums; }
+.receipt-totals { padding-top: 0.4rem; border-top: 1px solid #eef2f6; }
+.receipt-totals > div { display: flex; justify-content: space-between; padding: 0.2rem 0; }
+.receipt-totals .grand { font-weight: 800; color: var(--brand); font-size: 1.1rem; border-top: 1px solid var(--brand); margin-top: 0.4rem; padding-top: 0.5rem; }
+.receipt-meta-bottom { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px dashed #cdd7e0; font-size: 0.92rem; }
+.receipt-meta-bottom p { margin: 0.3rem 0; }
+
+@media print {
+  .no-print, .bottom-nav, .topbar, header { display: none !important; }
+  body { background: #fff !important; }
+  .panel { display: none !important; }
+  #orders.panel { display: block !important; }
+  #orders-list { display: none !important; }
+  .receipt { box-shadow: none !important; }
+}
+
+/* toast */
+#toast {
+  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--brand); color: #fff; padding: 0.6rem 1.1rem; border-radius: 999px;
+  font-weight: 600; box-shadow: 0 4px 14px rgba(19,56,140,0.25);
+  opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 40; font-size: 0.9rem;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* login-page apply CTA (more visible than the disclosure) */
+.apply-cta {
+  margin-top: 1.4rem; padding: 1rem; border: 1.5px dashed var(--brand); border-radius: 0.7rem;
+  background: #f3f7fd; text-align: center;
+}
+.apply-cta p { margin: 0 0 0.6rem; color: var(--brand); font-weight: 600; }
+.apply-link { display: inline-block; padding: 0.6rem 1.2rem; font-weight: 700; }
