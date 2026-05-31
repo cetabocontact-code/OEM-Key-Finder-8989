@@ -23,8 +23,8 @@ body {
   gap: 1rem; padding: 0.7rem 1.2rem; background: #fff; color: var(--brand);
   flex-wrap: wrap; border-bottom: 3px solid var(--brand);
 }
-.brand { display: flex; align-items: center; gap: 0.8rem; }
-.brand-logo { height: 46px; width: auto; display: block; }
+.brand { display: flex; align-items: center; gap: 1rem; }
+.brand-logo { height: 64px; width: auto; display: block; }
 .topbar h1 { margin: 0; font-size: 1.05rem; color: var(--brand); }
 .tagline { margin: 0; font-size: 0.8rem; color: var(--muted); }
 .topbar-actions { display: flex; align-items: center; gap: 0.5rem; }
@@ -46,8 +46,8 @@ main { padding: 1.2rem; max-width: 1100px; margin: 0 auto; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
 .card { background: var(--card); border-radius: 0.8rem; padding: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 .product-img {
-  height: 130px; width: 100%; object-fit: contain; margin-bottom: 0.4rem;
-  background: linear-gradient(160deg, #f3f8ff, #e3edfb); border-radius: 0.5rem;
+  height: 180px; width: 100%; object-fit: contain; margin-bottom: 0.4rem;
+  background: #ffffff; border: 1px solid #eef2f6; border-radius: 0.5rem; padding: 0.4rem;
 }
 .product-img.placeholder {
   display: flex; align-items: center; justify-content: center;
