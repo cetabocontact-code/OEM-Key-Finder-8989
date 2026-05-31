@@ -84,9 +84,14 @@ FAQ = [
 ]
 
 CONTACT = {
-    "phone": "+962 6 405 9090 / +962 6 405 9080",
-    "email": "Info@Samafood.jo",
+    "address_en": "Salem Village Main Road, Shahab — Amman, Jordan",
+    "address_ar": "طريق قرية سالم الرئيسي، شهاب — عمّان، الأردن",
+    "phone": "+962 6 405 9090",
+    "fax": "+962 6 405 9080",
+    "email": "Info@samafood.jo",
     "website": "https://samafood.jo/",
+    "hours_en": "Saturday to Thursday · 8 AM – 8 PM",
+    "hours_ar": "السبت إلى الخميس · ٨ صباحاً – ٨ مساءً",
 }
 
 

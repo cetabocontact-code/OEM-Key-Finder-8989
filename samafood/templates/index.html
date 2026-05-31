@@ -109,9 +109,11 @@
       </div>
       <div class="card">
         <h2>{{ strings['contact_us'] }}</h2>
-        <p>☎ <a href="tel:+96264059090">{{ contact.phone }}</a></p>
+        <p>📍 {{ contact.address_ar if lang == 'ar' else contact.address_en }}</p>
+        <p>☎ <a href="tel:+96264059090">{{ contact.phone }}</a> &nbsp; · &nbsp; Fax {{ contact.fax }}</p>
         <p>✉ <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
         <p>🌐 <a href="{{ contact.website }}" target="_blank" rel="noopener">{{ contact.website }}</a></p>
+        <p>🕗 {{ contact.hours_ar if lang == 'ar' else contact.hours_en }}</p>
       </div>
     </section>
 

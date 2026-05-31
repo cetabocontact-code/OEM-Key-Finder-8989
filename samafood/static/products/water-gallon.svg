@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 220" role="img" aria-label="WATER 5L">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1"><stop offset="0" stop-color="#0a4a8a"/><stop offset="1" stop-color="#5fb0e8"/></linearGradient>
+  </defs>
+  <ellipse cx="80" cy="212" rx="60" ry="6" fill="#000" opacity="0.18"/>
+  <rect x="60" y="14" width="40" height="20" rx="4" fill="#bdbdbd"/>
+  <path d="M30 40 Q30 30 50 30 L110 30 Q130 30 130 40 L130 200 Q130 210 110 210 L50 210 Q30 210 30 200 Z" fill="url(#bg)"/>
+  <rect x="40" y="80" width="80" height="80" fill="#ffffff"/>
+  <g transform="translate(80,108)">
+    <path transform="rotate(-30) scale(0.55)" d="M0,4 C-13,-22 -9,-40 0,-50 C9,-40 13,-22 0,4 Z" fill="#13388c"/>
+    <path transform="rotate(2) scale(0.55)" d="M0,4 C-12,-26 -8,-46 0,-58 C9,-46 13,-26 0,4 Z" fill="#e8232a"/>
+    <path transform="rotate(40) scale(0.55)" d="M0,4 C-14,-24 -10,-42 0,-54 C11,-42 16,-22 0,4 Z" fill="#13388c"/>
+  </g>
+  <text x="80" y="140" text-anchor="middle" font-family="Verdana" font-size="22" font-weight="800" fill="#13388c">sama</text>
+  <text x="80" y="156" text-anchor="middle" font-family="Arial" font-size="10" font-weight="700" fill="#13388c">WATER 5L</text>
+</svg>
