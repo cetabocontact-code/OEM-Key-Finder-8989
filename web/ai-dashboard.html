@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Companies Battle Board</title>
+    <link rel="stylesheet" href="/styles.css">
+    <style>
+      .board-wrap {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 18px;
+        margin-top: 8px;
+      }
+      .board-head {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .update-pill {
+        background: #edf7f4;
+        border: 1px solid #c7e5d9;
+        border-radius: 999px;
+        color: var(--good);
+        font-size: 12px;
+        font-weight: 800;
+        padding: 6px 12px;
+      }
+      .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+      .filter-row .search-input {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+        min-height: 38px;
+        padding: 0 14px;
+        min-width: 200px;
+        flex: 1 1 220px;
+      }
+      .chip {
+        background: #fff;
+        border: 1.5px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 13px;
+        min-height: 38px;
+        padding: 0 14px;
+      }
+      .chip.active {
+        color: #fff;
+        border-color: transparent;
+      }
+      .bubble-field {
+        position: relative;
+        width: 100%;
+        height: 520px;
+        background:
+          radial-gradient(circle at 30% 20%, #f7fafb, #eef3f5);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .bubble {
+        position: absolute;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #fff;
+        cursor: pointer;
+        text-decoration: none;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        padding: 6px;
+        border: 2px solid rgba(255, 255, 255, 0.55);
+      }
+      .bubble:hover {
+        transform: scale(1.06);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+        z-index: 5;
+      }
+      .bubble .b-name {
+        font-weight: 900;
+        line-height: 1.05;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+      }
+      .bubble .b-score {
+        font-weight: 800;
+        opacity: 0.95;
+        margin-top: 2px;
+      }
+      .bubble .b-verified {
+        font-size: 10px;
+        font-weight: 800;
+        opacity: 0.9;
+      }
+      .field-empty {
+        align-items: center;
+        color: var(--muted);
+        display: flex;
+        font-weight: 700;
+        height: 100%;
+        justify-content: center;
+      }
+      .keys-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin-top: 14px;
+      }
+      .key-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .key-card h3 { margin-bottom: 8px; }
+      .key-line {
+        align-items: center;
+        color: var(--muted);
+        display: flex;
+        font-weight: 700;
+        font-size: 13px;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+      .swatch {
+        border-radius: 50%;
+        display: inline-block;
+        flex: 0 0 auto;
+      }
+      .size-dot {
+        background: var(--muted);
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .status-good { color: var(--good); font-weight: 800; }
+      .status-warn { color: var(--warn); font-weight: 800; }
+      .sources-list { display: grid; gap: 6px; }
+      .sources-list a { color: var(--accent-dark); font-weight: 700; }
+      .activity-table button { all: unset; }
+      .nav-links { display: flex; gap: 10px; }
+      .nav-links a {
+        color: var(--accent-dark);
+        font-weight: 800;
+        text-decoration: none;
+      }
+      .verified-tag {
+        background: #edf7f4;
+        border: 1px solid #c7e5d9;
+        border-radius: 6px;
+        color: var(--good);
+        font-size: 11px;
+        font-weight: 800;
+        padding: 2px 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Live AI capability rankings</p>
+        <h1>AI Companies Battle Board</h1>
+      </div>
+      <div class="nav-links">
+        <a href="/">&larr; Key Finder</a>
+      </div>
+    </header>
+
+    <main class="shell">
+      <nav class="tabs" aria-label="Views">
+        <button class="tab-button active" data-tab="board" type="button">Battle Board</button>
+        <button class="tab-button" data-tab="activity" type="button">Search Activity</button>
+        <button class="tab-button" data-tab="sources" type="button">Verified Sources</button>
+      </nav>
+
+      <!-- BOARD -->
+      <section class="tab-panel active" id="board-panel">
+        <div class="board-wrap">
+          <div class="board-head">
+            <div>
+              <h2>Top AI companies, sized by performance</h2>
+              <p class="muted" id="board-sub">Filter by what their models do.</p>
+            </div>
+            <span class="update-pill" id="update-pill">Loading…</span>
+          </div>
+
+          <div class="filter-row" id="filter-row">
+            <input class="search-input" id="board-search" type="text" placeholder="Search a company or model (e.g. Claude, Sora, FLUX)…" autocomplete="off">
+            <button class="chip active" data-cat="" type="button" style="background:#2b2f33;color:#fff;border-color:transparent">All</button>
+          </div>
+
+          <div class="bubble-field" id="bubble-field"></div>
+
+          <!-- KEYS / LEGEND -->
+          <div class="keys-grid">
+            <div class="key-card">
+              <h3>How to read the board</h3>
+              <div class="key-line"><span class="size-dot" style="width:10px;height:10px"></span> Small bubble = lower score</div>
+              <div class="key-line"><span class="size-dot" style="width:20px;height:20px"></span> Large bubble = leader in this capability</div>
+              <div class="key-line"><span class="swatch" style="width:14px;height:14px;background:#10a37f"></span> Color = each company's brand</div>
+              <div class="key-line"><span class="verified-tag">✓ verified</span> = official link confirmed</div>
+            </div>
+            <div class="key-card">
+              <h3>Capability key</h3>
+              <div id="legend-cats"></div>
+            </div>
+            <div class="key-card">
+              <h3>Board status</h3>
+              <div class="key-line">Showing <strong id="stat-count" style="color:var(--ink)">0</strong> companies</div>
+              <div class="key-line">Leader: <strong id="stat-leader" style="color:var(--ink)">—</strong></div>
+              <div class="key-line">Auto-update: <strong style="color:var(--ink)">every 3 hours</strong></div>
+              <div class="key-line">Feed: <span id="stat-feed" class="status-good">live</span></div>
+              <div class="key-line">Next pull: <strong id="stat-next" style="color:var(--ink)">—</strong></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTIVITY -->
+      <section class="tab-panel" id="activity-panel">
+        <div class="section-head">
+          <h2>Search Activity</h2>
+          <span class="muted">Updates every time you search or filter the board.</span>
+        </div>
+        <div class="history-table-wrap">
+          <table class="history-table activity-table">
+            <thead>
+              <tr><th>When</th><th>Query</th><th>Filter</th><th>Matches</th><th>Companies</th></tr>
+            </thead>
+            <tbody id="activity-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SOURCES -->
+      <section class="tab-panel" id="sources-panel">
+        <div class="section-head">
+          <h2>Verified Sources</h2>
+          <span class="muted" id="sources-updated"></span>
+        </div>
+        <div class="board-wrap">
+          <p class="muted" id="sources-note"></p>
+          <div class="sources-list" id="sources-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/ai-dashboard.js"></script>
+  </body>
+</html>

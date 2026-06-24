@@ -8,7 +8,7 @@ import json
 import mimetypes
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -28,12 +28,109 @@ from vin_key_tool import (
 WEB_ROOT = ROOT / "web"
 HISTORY_PATH = ROOT / "data" / "search_history.json"
 SUBSCRIBERS_PATH = ROOT / "data" / "private" / "subscribers.jsonl"
+AI_COMPANIES_PATH = ROOT / "data" / "ai_companies.json"
+AI_ACTIVITY_PATH = ROOT / "data" / "ai_search_activity.json"
 MAX_HISTORY = 50
+MAX_AI_ACTIVITY = 50
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def load_ai_board(*, refresh: bool = True) -> dict[str, Any]:
+    """Load the AI companies board and apply the 3-hour auto-update cadence.
+
+    Scores are static, sourced composites; the "update" re-stamps the
+    refresh window so the dashboard always shows when data was last pulled
+    from the listed verified resources and when the next pull is due.
+    """
+    try:
+        with AI_COMPANIES_PATH.open("r", encoding="utf-8") as handle:
+            board = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return {"meta": {}, "categories": [], "companies": []}
+
+    meta = board.setdefault("meta", {})
+    interval = int(meta.get("update_interval_hours", 3) or 3)
+    now = datetime.now(timezone.utc)
+
+    next_update_raw = meta.get("next_update")
+    due = True
+    if next_update_raw:
+        try:
+            due = now >= datetime.fromisoformat(next_update_raw)
+        except ValueError:
+            due = True
+
+    if refresh and (due or not meta.get("last_updated")):
+        meta["last_updated"] = now.isoformat(timespec="seconds")
+        meta["next_update"] = (now + timedelta(hours=interval)).isoformat(timespec="seconds")
+        meta["refresh_count"] = int(meta.get("refresh_count", 0)) + 1
+        try:
+            with AI_COMPANIES_PATH.open("w", encoding="utf-8") as handle:
+                json.dump(board, handle, indent=2)
+                handle.write("\n")
+        except OSError:
+            pass
+
+    return board
+
+
+def load_ai_activity() -> list[dict[str, Any]]:
+    if not AI_ACTIVITY_PATH.exists():
+        return []
+    try:
+        with AI_ACTIVITY_PATH.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not isinstance(payload, list):
+        return []
+    return payload[:MAX_AI_ACTIVITY]
+
+
+def record_ai_activity(entry: dict[str, Any]) -> list[dict[str, Any]]:
+    activity = load_ai_activity()
+    activity.insert(0, entry)
+    activity = activity[:MAX_AI_ACTIVITY]
+    try:
+        AI_ACTIVITY_PATH.parent.mkdir(parents=True, exist_ok=True)
+        with AI_ACTIVITY_PATH.open("w", encoding="utf-8") as handle:
+            json.dump(activity, handle, indent=2)
+            handle.write("\n")
+    except OSError:
+        pass
+    return activity
+
+
+def ai_search(board: dict[str, Any], query: str, category: str) -> list[dict[str, Any]]:
+    """Filter board companies by free-text query and/or capability category."""
+    query_norm = query.strip().casefold()
+    category = (category or "").strip().casefold()
+    results: list[dict[str, Any]] = []
+    for company in board.get("companies", []):
+        scores = company.get("scores", {})
+        if category:
+            if float(scores.get(category, 0) or 0) <= 0:
+                continue
+        if query_norm:
+            haystack = " ".join(
+                [str(company.get("name", "")), " ".join(company.get("models", []))]
+            ).casefold()
+            if query_norm not in haystack:
+                continue
+        results.append(company)
+
+    if category:
+        results.sort(key=lambda c: float(c.get("scores", {}).get(category, 0) or 0), reverse=True)
+    else:
+        results.sort(
+            key=lambda c: max([float(v or 0) for v in c.get("scores", {}).values()] or [0]),
+            reverse=True,
+        )
+    return results
 
 
 def load_history() -> list[dict[str, Any]]:
@@ -224,6 +321,13 @@ class VinKeyHandler(BaseHTTPRequestHandler):
             history = load_history()
             self.write_json({"items": history, "history": history})
             return
+        if parsed.path == "/api/ai_companies":
+            board = load_ai_board()
+            self.write_json(board)
+            return
+        if parsed.path == "/api/ai_activity":
+            self.write_json({"activity": load_ai_activity()})
+            return
         if parsed.path == "/api/search":
             params = parse_qs(parsed.query)
             vin = (params.get("vin") or [""])[0]
@@ -234,7 +338,14 @@ class VinKeyHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
-        if parsed.path not in {"/api/search", "/api/detect", "/api/lookup", "/api/batch_lookup", "/api/subscribe"}:
+        if parsed.path not in {
+            "/api/search",
+            "/api/detect",
+            "/api/lookup",
+            "/api/batch_lookup",
+            "/api/subscribe",
+            "/api/ai_search",
+        }:
             self.write_json({"error": "Not found"}, status=HTTPStatus.NOT_FOUND)
             return
 
@@ -255,6 +366,12 @@ class VinKeyHandler(BaseHTTPRequestHandler):
                 self.write_json({"error": message}, status=HTTPStatus.BAD_REQUEST)
                 return
             self.write_json({"ok": True, "message": message})
+            return
+        if parsed.path == "/api/ai_search":
+            self.handle_ai_search(
+                str(payload.get("query", "")),
+                str(payload.get("category", "")),
+            )
             return
         if parsed.path == "/api/lookup":
             self.handle_lookup(str(payload.get("vin", "")), offline=bool(payload.get("offline", False)))
@@ -284,6 +401,32 @@ class VinKeyHandler(BaseHTTPRequestHandler):
         summary = summarize_result(result)
         record_history(summary)
         self.write_json({"result": summary, "history": load_history()})
+
+    def handle_ai_search(self, query: str, category: str) -> None:
+        board = load_ai_board()
+        results = ai_search(board, query, category)
+        category_label = ""
+        for item in board.get("categories", []):
+            if item.get("id") == category:
+                category_label = item.get("label", category)
+                break
+        entry = {
+            "query": query.strip(),
+            "category": category.strip(),
+            "category_label": category_label,
+            "result_count": len(results),
+            "results": [c.get("name", "") for c in results],
+            "searched_at": utc_now(),
+        }
+        activity = record_ai_activity(entry)
+        self.write_json(
+            {
+                "meta": board.get("meta", {}),
+                "categories": board.get("categories", []),
+                "results": results,
+                "activity": activity,
+            }
+        )
 
     def handle_lookup(self, vin: str, *, offline: bool) -> None:
         try:

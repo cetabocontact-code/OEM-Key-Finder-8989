@@ -1,0 +1,396 @@
+{
+  "meta": {
+    "title": "AI Companies Battle Board",
+    "note": "Scores are indicative composites (0-100) blended from the public verified leaderboards listed in 'sources'. They are directional rankings of relative strength per capability, not absolute benchmark numbers.",
+    "update_interval_hours": 3,
+    "last_updated": "2026-06-24T05:58:54+00:00",
+    "next_update": "2026-06-24T08:58:54+00:00",
+    "refresh_count": 1,
+    "sources": [
+      {
+        "name": "LMArena (Chatbot Arena)",
+        "url": "https://lmarena.ai",
+        "covers": [
+          "reasoning",
+          "coding"
+        ],
+        "verified": true
+      },
+      {
+        "name": "Artificial Analysis",
+        "url": "https://artificialanalysis.ai",
+        "covers": [
+          "reasoning",
+          "coding",
+          "image",
+          "video",
+          "audio"
+        ],
+        "verified": true
+      },
+      {
+        "name": "SWE-bench",
+        "url": "https://www.swebench.com",
+        "covers": [
+          "coding"
+        ],
+        "verified": true
+      },
+      {
+        "name": "Hugging Face Open LLM / Trending",
+        "url": "https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard",
+        "covers": [
+          "reasoning",
+          "coding"
+        ],
+        "verified": true
+      },
+      {
+        "name": "Artificial Analysis - Image Arena",
+        "url": "https://artificialanalysis.ai/text-to-image",
+        "covers": [
+          "image"
+        ],
+        "verified": true
+      },
+      {
+        "name": "Artificial Analysis - Video Arena",
+        "url": "https://artificialanalysis.ai/text-to-video",
+        "covers": [
+          "video"
+        ],
+        "verified": true
+      }
+    ]
+  },
+  "categories": [
+    {
+      "id": "reasoning",
+      "label": "Reasoning & Chat",
+      "color": "#1f6f78"
+    },
+    {
+      "id": "coding",
+      "label": "Coding & Generation",
+      "color": "#2d6cdf"
+    },
+    {
+      "id": "image",
+      "label": "Image Generation",
+      "color": "#8a3ffc"
+    },
+    {
+      "id": "video",
+      "label": "Video",
+      "color": "#c0392b"
+    },
+    {
+      "id": "audio",
+      "label": "Audio & Voice",
+      "color": "#1f8a4c"
+    }
+  ],
+  "companies": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "color": "#10a37f",
+      "official_url": "https://openai.com",
+      "verified": true,
+      "models": [
+        "GPT-5 family",
+        "o-series reasoning",
+        "Sora",
+        "DALL\u00b7E",
+        "GPT-4o Realtime"
+      ],
+      "scores": {
+        "reasoning": 96,
+        "coding": 93,
+        "image": 88,
+        "video": 90,
+        "audio": 86
+      }
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "color": "#d97757",
+      "official_url": "https://www.anthropic.com",
+      "verified": true,
+      "models": [
+        "Claude Opus 4.x",
+        "Claude Sonnet 4.x",
+        "Claude Haiku 4.x"
+      ],
+      "scores": {
+        "reasoning": 95,
+        "coding": 96,
+        "image": 0,
+        "video": 0,
+        "audio": 0
+      }
+    },
+    {
+      "id": "google",
+      "name": "Google DeepMind",
+      "color": "#4285f4",
+      "official_url": "https://deepmind.google",
+      "verified": true,
+      "models": [
+        "Gemini 2.x",
+        "Imagen 3",
+        "Veo 2",
+        "Lyria"
+      ],
+      "scores": {
+        "reasoning": 94,
+        "coding": 91,
+        "image": 89,
+        "video": 92,
+        "audio": 80
+      }
+    },
+    {
+      "id": "xai",
+      "name": "xAI",
+      "color": "#111111",
+      "official_url": "https://x.ai",
+      "verified": true,
+      "models": [
+        "Grok 4",
+        "Grok Image",
+        "Aurora"
+      ],
+      "scores": {
+        "reasoning": 90,
+        "coding": 88,
+        "image": 82,
+        "video": 0,
+        "audio": 0
+      }
+    },
+    {
+      "id": "meta",
+      "name": "Meta AI",
+      "color": "#0866ff",
+      "official_url": "https://ai.meta.com",
+      "verified": true,
+      "models": [
+        "Llama 4 family",
+        "Movie Gen",
+        "Emu"
+      ],
+      "scores": {
+        "reasoning": 86,
+        "coding": 84,
+        "image": 80,
+        "video": 83,
+        "audio": 78
+      }
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral AI",
+      "color": "#fa520f",
+      "official_url": "https://mistral.ai",
+      "verified": true,
+      "models": [
+        "Mistral Large",
+        "Codestral",
+        "Pixtral"
+      ],
+      "scores": {
+        "reasoning": 84,
+        "coding": 87,
+        "image": 70,
+        "video": 0,
+        "audio": 0
+      }
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "color": "#4d6bfe",
+      "official_url": "https://www.deepseek.com",
+      "verified": true,
+      "models": [
+        "DeepSeek-V3",
+        "DeepSeek-R1",
+        "DeepSeek-Coder"
+      ],
+      "scores": {
+        "reasoning": 91,
+        "coding": 90,
+        "image": 0,
+        "video": 0,
+        "audio": 0
+      }
+    },
+    {
+      "id": "alibaba",
+      "name": "Alibaba (Qwen)",
+      "color": "#615ced",
+      "official_url": "https://qwenlm.github.io",
+      "verified": true,
+      "models": [
+        "Qwen3",
+        "Qwen-Coder",
+        "Qwen-VL",
+        "Wan 2.x video"
+      ],
+      "scores": {
+        "reasoning": 89,
+        "coding": 89,
+        "image": 81,
+        "video": 85,
+        "audio": 76
+      }
+    },
+    {
+      "id": "midjourney",
+      "name": "Midjourney",
+      "color": "#1a1a2e",
+      "official_url": "https://www.midjourney.com",
+      "verified": true,
+      "models": [
+        "Midjourney v6.x",
+        "Midjourney Video"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 95,
+        "video": 79,
+        "audio": 0
+      }
+    },
+    {
+      "id": "bfl",
+      "name": "Black Forest Labs",
+      "color": "#0b6b53",
+      "official_url": "https://blackforestlabs.ai",
+      "verified": true,
+      "models": [
+        "FLUX.1",
+        "FLUX1.1 Pro"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 92,
+        "video": 0,
+        "audio": 0
+      }
+    },
+    {
+      "id": "runway",
+      "name": "Runway",
+      "color": "#00d18f",
+      "official_url": "https://runwayml.com",
+      "verified": true,
+      "models": [
+        "Gen-4",
+        "Gen-3 Alpha"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 78,
+        "video": 91,
+        "audio": 0
+      }
+    },
+    {
+      "id": "kuaishou",
+      "name": "Kuaishou (Kling)",
+      "color": "#ff6a00",
+      "official_url": "https://kling.kuaishou.com",
+      "verified": true,
+      "models": [
+        "Kling 2.x"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 0,
+        "video": 93,
+        "audio": 0
+      }
+    },
+    {
+      "id": "stability",
+      "name": "Stability AI",
+      "color": "#9b30ff",
+      "official_url": "https://stability.ai",
+      "verified": true,
+      "models": [
+        "Stable Diffusion 3.5",
+        "Stable Audio",
+        "Stable Video"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 84,
+        "video": 76,
+        "audio": 80
+      }
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "color": "#000000",
+      "official_url": "https://elevenlabs.io",
+      "verified": true,
+      "models": [
+        "Multilingual v2",
+        "Turbo v2.5",
+        "Voice Design"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 0,
+        "video": 0,
+        "audio": 95
+      }
+    },
+    {
+      "id": "cohere",
+      "name": "Cohere",
+      "color": "#39594d",
+      "official_url": "https://cohere.com",
+      "verified": true,
+      "models": [
+        "Command R+",
+        "Embed",
+        "Rerank"
+      ],
+      "scores": {
+        "reasoning": 82,
+        "coding": 79,
+        "image": 0,
+        "video": 0,
+        "audio": 0
+      }
+    },
+    {
+      "id": "suno",
+      "name": "Suno",
+      "color": "#1e1e1e",
+      "official_url": "https://suno.com",
+      "verified": true,
+      "models": [
+        "Suno v4"
+      ],
+      "scores": {
+        "reasoning": 0,
+        "coding": 0,
+        "image": 0,
+        "video": 0,
+        "audio": 90
+      }
+    }
+  ]
+}

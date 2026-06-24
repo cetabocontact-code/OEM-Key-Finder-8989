@@ -3,6 +3,7 @@ __pycache__/
 
 data/private/
 data/search_history.json
+data/ai_search_activity.json
 
 out/
 .oem_key_finder_storage/
